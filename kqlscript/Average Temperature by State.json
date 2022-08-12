@@ -1,0 +1,19 @@
+{
+	"name": "Average Temperature by State",
+	"properties": {
+		"folder": {
+			"name": "Experiments"
+		},
+		"content": {
+			"query": "['fleet data']\n| summarize ['Average Temperature'] = avg(CoreTemp) by DeviceState\n| order by ['Average Temperature'] desc ",
+			"metadata": {
+				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
