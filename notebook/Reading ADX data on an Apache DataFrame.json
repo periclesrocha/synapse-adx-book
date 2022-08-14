@@ -1,0 +1,90 @@
+{
+	"name": "Reading ADX data on an Apache DataFrame",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkdronetl",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "39cd1cf7-b35e-493a-8f66-860534322a96"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl",
+				"name": "sparkdronetl",
+				"type": "Spark",
+				"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Reading data from a Data Explorer pool\r\n",
+					"The code cell bellow reads data from our Data Explorer pool using **PySpark** and loads it into a Spark DataFrame. "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%pyspark\n",
+					"\n",
+					"kustoDf  = spark.read \\\n",
+					"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\n",
+					"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\n",
+					"    .option(\"kustoCluster\", \"https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net\") \\\n",
+					"    .option(\"kustoDatabase\", \"drone-telemetry\") \\\n",
+					"    .option(\"kustoQuery\", \"['fleet data'] | take 10\") \\\n",
+					"    .load()\n",
+					"\n",
+					"display(kustoDf)"
+				],
+				"execution_count": 1
+			}
+		]
+	}
+}
