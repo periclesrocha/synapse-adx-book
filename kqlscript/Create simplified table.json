@@ -1,0 +1,12 @@
+{
+	"name": "Create simplified table",
+	"properties": {
+		"content": {
+			"query": ".create table ['fleet data simplified'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) \n",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
