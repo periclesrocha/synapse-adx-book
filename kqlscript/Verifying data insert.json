@@ -1,0 +1,12 @@
+{
+	"name": "Verifying data insert",
+	"properties": {
+		"content": {
+			"query": "['fleet data simplified'] \n| project DeviceData, CoreTemp, PayloadWeight\n| take 10",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
