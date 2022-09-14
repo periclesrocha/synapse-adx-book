@@ -135,6 +135,68 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Create simplified table')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Chapter 5"
+				},
+				"content": {
+					"query": ".create table ['fleet data simplified'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) ",
+					"metadata": {
+						"language": "kql"
+					},
+					"currentConnection": {
+						"poolName": "droneanalyticsadx",
+						"databaseName": "drone-telemetry"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Insert data from ADLS')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Chapter 5"
+				},
+				"content": {
+					"query": ".ingest into table ['fleet data simplified'] \n    'https://dronetelemetrydatalake.blob.core.windows.net/raw-data/drone-telemetry-simplified.csv?sp=r&st=2022-09-14T05:25:46Z&se=2022-09-14T13:25:46Z&spr=https&sv=2021-06-08&sr=b&sig=0CC1u1wSdu9IL4Am%2F6QUF7kcUY90fExt4MIooKZJnVs%3D' \n    with (ignoreFirstRecord=true)",
+					"metadata": {
+						"language": "kql"
+					},
+					"currentConnection": {
+						"poolName": "droneanalyticsadx",
+						"databaseName": "drone-telemetry"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Verifying data insert')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Chapter 5"
+				},
+				"content": {
+					"query": "['fleet data simplified'] \n| project DeviceData, CoreTemp, PayloadWeight\n| take 10",
+					"metadata": {
+						"language": "kql"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Reading ADX data on an Apache DataFrame')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -251,41 +313,6 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Create simplified table')]",
-			"type": "Microsoft.Synapse/workspaces/kqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Chapter 5"
-				},
-				"content": {
-					"query": ".create table ['fleet data simplified'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) ",
-					"metadata": {
-						"language": "kql"
-					},
-					"currentConnection": {
-						"poolName": "droneanalyticsadx",
-						"databaseName": "drone-telemetry"
-					}
-				},
-				"type": "KqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/KQL script 1')]",
-			"type": "Microsoft.Synapse/workspaces/kqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"metadata": {
-						"language": "kql"
-					}
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }
