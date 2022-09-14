@@ -155,7 +155,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "8f684476-e772-4888-920d-cb6dda6669fa"
+						"spark.autotune.trackingId": "39cd1cf7-b35e-493a-8f66-860534322a96"
 					}
 				},
 				"metadata": {
@@ -180,8 +180,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -233,7 +232,58 @@
 			"type": "Microsoft.Synapse/workspaces/bigDataPools",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 10
+				},
+				"autoScale": {
+					"enabled": false,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 3,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
 				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Create simplified table')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Chapter 5"
+				},
+				"content": {
+					"query": ".create table ['fleet data simplified'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) ",
+					"metadata": {
+						"language": "kql"
+					},
+					"currentConnection": {
+						"poolName": "droneanalyticsadx",
+						"databaseName": "drone-telemetry"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/KQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"metadata": {
+						"language": "kql"
+					}
+				}
 			},
 			"dependsOn": []
 		}
