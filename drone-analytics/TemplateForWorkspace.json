@@ -317,6 +317,25 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Retention Policies')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "// Showing the retention policy of a table \n.show table ['fleet data'] policy retention\n\n// Creating a retention policy of 365 days and enabling recoverability\n.alter table ['fleet data'] policy retention \"{\\\"SoftDeletePeriod\\\": \\\"365.00:00:00\\\", \\\"Recoverability\\\": \\\"Enabled\\\"}\"",
+					"metadata": {
+						"language": "kql"
+					},
+					"currentConnection": {
+						"poolName": "droneanalyticsadx",
+						"databaseName": "drone-telemetry"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
 		}
 	]
 }
