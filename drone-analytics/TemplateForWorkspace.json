@@ -323,6 +323,9 @@
 			"type": "Microsoft.Synapse/workspaces/kqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "Chapter 5"
+				},
 				"content": {
 					"query": "// Showing the retention policy of a database \n.show database ['drone-telemetry'] policy retention\n\n// Changing the retention policy to 90 days and disabling recoverability\n.alter database ['drone-telemetry'] policy retention \n    \"{\\\"SoftDeletePeriod\\\": \\\"90.00:00:00\\\", \\\"Recoverability\\\": \\\"Disabled\\\"}\"\n",
 					"metadata": {
