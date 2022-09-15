@@ -2,7 +2,7 @@
 	"name": "Retention Policies",
 	"properties": {
 		"content": {
-			"query": "// Showing the retention policy of a table \n.show table ['fleet data'] policy retention\n\n// Creating a retention policy of 365 days and enabling recoverability\n.alter table ['fleet data'] policy retention \"{\\\"SoftDeletePeriod\\\": \\\"365.00:00:00\\\", \\\"Recoverability\\\": \\\"Enabled\\\"}\"",
+			"query": "// Showing the retention policy of a database \n.show database ['drone-telemetry'] policy retention\n\n// Changing the retention policy to 90 days and disabling recoverability\n.alter database ['drone-telemetry'] policy retention \n    \"{\\\"SoftDeletePeriod\\\": \\\"90.00:00:00\\\", \\\"Recoverability\\\": \\\"Disabled\\\"}\"\n",
 			"metadata": {
 				"language": "kql"
 			},
