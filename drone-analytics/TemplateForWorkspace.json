@@ -14,6 +14,10 @@
 		"drone-analytics-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://dronetelemetrydatalake.dfs.core.windows.net"
+		},
+		"droneanalyticsadx_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "drone-telemetry"
 		}
 	},
 	"variables": {
@@ -179,6 +183,28 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Retention Policies')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Chapter 5"
+				},
+				"content": {
+					"query": "// Showing the retention policy of a database \n.show database ['drone-telemetry'] policy retention\n\n// Changing the retention policy to 90 days and disabling recoverability\n.alter database ['drone-telemetry'] policy retention \n    \"{\\\"SoftDeletePeriod\\\": \\\"90.00:00:00\\\", \\\"Recoverability\\\": \\\"Disabled\\\"}\"\n",
+					"metadata": {
+						"language": "kql"
+					},
+					"currentConnection": {
+						"poolName": "droneanalyticsadx",
+						"databaseName": "drone-telemetry"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Verifying data insert')]",
 			"type": "Microsoft.Synapse/workspaces/kqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -319,26 +345,263 @@
 			"location": "eastus"
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Retention Policies')]",
-			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"name": "[concat(parameters('workspaceName'), '/droneanalyticsadx')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"folder": {
-					"name": "Chapter 5"
+				"annotations": [],
+				"type": "AzureDataExplorer",
+				"typeProperties": {
+					"endpoint": "https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net",
+					"database": "[parameters('droneanalyticsadx_properties_typeProperties_database')]"
 				},
-				"content": {
-					"query": "// Showing the retention policy of a database \n.show database ['drone-telemetry'] policy retention\n\n// Changing the retention policy to 90 days and disabling recoverability\n.alter database ['drone-telemetry'] policy retention \n    \"{\\\"SoftDeletePeriod\\\": \\\"90.00:00:00\\\", \\\"Recoverability\\\": \\\"Disabled\\\"}\"\n",
-					"metadata": {
-						"language": "kql"
-					},
-					"currentConnection": {
-						"poolName": "droneanalyticsadx",
-						"databaseName": "drone-telemetry"
-					}
-				},
-				"type": "KqlQuery"
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Copy telemetry data')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy telemetry data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureDataExplorerSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "telemetrydata",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureDataExplorerTable1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/telemetrydata')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureDataExplorerTable1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/telemetrydata')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "drone-analytics-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "dataset.csv",
+						"fileSystem": "raw-data"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "DeviceData",
+						"type": "String"
+					},
+					{
+						"name": "DateTime",
+						"type": "String"
+					},
+					{
+						"name": "LocalDateTime",
+						"type": "String"
+					},
+					{
+						"name": "DeviceState",
+						"type": "String"
+					},
+					{
+						"name": "Engine1Status",
+						"type": "String"
+					},
+					{
+						"name": "Engine2Status",
+						"type": "String"
+					},
+					{
+						"name": "Engine3Status",
+						"type": "String"
+					},
+					{
+						"name": "Engine4Status",
+						"type": "String"
+					},
+					{
+						"name": "Engine1RPM",
+						"type": "String"
+					},
+					{
+						"name": "Engine2RPM",
+						"type": "String"
+					},
+					{
+						"name": "Engine3RPM",
+						"type": "String"
+					},
+					{
+						"name": "Engine4RPM",
+						"type": "String"
+					},
+					{
+						"name": "Engine1Temp",
+						"type": "String"
+					},
+					{
+						"name": "Engine2Temp",
+						"type": "String"
+					},
+					{
+						"name": "Engine3Temp",
+						"type": "String"
+					},
+					{
+						"name": "Engine4Temp",
+						"type": "String"
+					},
+					{
+						"name": "CoreTemp",
+						"type": "String"
+					},
+					{
+						"name": "BatteryTemp",
+						"type": "String"
+					},
+					{
+						"name": "CoreStatus",
+						"type": "String"
+					},
+					{
+						"name": "MemoryAvailable",
+						"type": "String"
+					},
+					{
+						"name": "BatteryLevel",
+						"type": "String"
+					},
+					{
+						"name": "Latitude",
+						"type": "String"
+					},
+					{
+						"name": "Longitude",
+						"type": "String"
+					},
+					{
+						"name": "Compass",
+						"type": "String"
+					},
+					{
+						"name": "Altitude",
+						"type": "String"
+					},
+					{
+						"name": "Speed",
+						"type": "String"
+					},
+					{
+						"name": "DistanceFromBase",
+						"type": "String"
+					},
+					{
+						"name": "RFSignal",
+						"type": "String"
+					},
+					{
+						"name": "PayloadWeight",
+						"type": "String"
+					},
+					{
+						"name": "EventData",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/drone-analytics-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureDataExplorerTable1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "droneanalyticsadx",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureDataExplorerTable",
+				"schema": [],
+				"typeProperties": {
+					"table": "fleet data - pipeline"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/droneanalyticsadx')]"
+			]
 		}
 	]
 }

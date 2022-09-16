@@ -10,6 +10,9 @@
 		},
 		"drone-analytics-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://dronetelemetrydatalake.dfs.core.windows.net"
+		},
+		"droneanalyticsadx_properties_typeProperties_database": {
+			"value": "drone-telemetry"
 		}
 	}
 }
