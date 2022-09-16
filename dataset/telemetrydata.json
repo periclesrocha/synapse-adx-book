@@ -1,0 +1,144 @@
+{
+	"name": "telemetrydata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "drone-analytics-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "dataset.csv",
+				"fileSystem": "raw-data"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "DeviceData",
+				"type": "String"
+			},
+			{
+				"name": "DateTime",
+				"type": "String"
+			},
+			{
+				"name": "LocalDateTime",
+				"type": "String"
+			},
+			{
+				"name": "DeviceState",
+				"type": "String"
+			},
+			{
+				"name": "Engine1Status",
+				"type": "String"
+			},
+			{
+				"name": "Engine2Status",
+				"type": "String"
+			},
+			{
+				"name": "Engine3Status",
+				"type": "String"
+			},
+			{
+				"name": "Engine4Status",
+				"type": "String"
+			},
+			{
+				"name": "Engine1RPM",
+				"type": "String"
+			},
+			{
+				"name": "Engine2RPM",
+				"type": "String"
+			},
+			{
+				"name": "Engine3RPM",
+				"type": "String"
+			},
+			{
+				"name": "Engine4RPM",
+				"type": "String"
+			},
+			{
+				"name": "Engine1Temp",
+				"type": "String"
+			},
+			{
+				"name": "Engine2Temp",
+				"type": "String"
+			},
+			{
+				"name": "Engine3Temp",
+				"type": "String"
+			},
+			{
+				"name": "Engine4Temp",
+				"type": "String"
+			},
+			{
+				"name": "CoreTemp",
+				"type": "String"
+			},
+			{
+				"name": "BatteryTemp",
+				"type": "String"
+			},
+			{
+				"name": "CoreStatus",
+				"type": "String"
+			},
+			{
+				"name": "MemoryAvailable",
+				"type": "String"
+			},
+			{
+				"name": "BatteryLevel",
+				"type": "String"
+			},
+			{
+				"name": "Latitude",
+				"type": "String"
+			},
+			{
+				"name": "Longitude",
+				"type": "String"
+			},
+			{
+				"name": "Compass",
+				"type": "String"
+			},
+			{
+				"name": "Altitude",
+				"type": "String"
+			},
+			{
+				"name": "Speed",
+				"type": "String"
+			},
+			{
+				"name": "DistanceFromBase",
+				"type": "String"
+			},
+			{
+				"name": "RFSignal",
+				"type": "String"
+			},
+			{
+				"name": "PayloadWeight",
+				"type": "String"
+			},
+			{
+				"name": "EventData",
+				"type": "String"
+			}
+		]
+	}
+}
