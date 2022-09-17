@@ -5,7 +5,7 @@
 			"name": "Chapter 5"
 		},
 		"content": {
-			"query": ".create table ['fleet data simplified'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) ",
+			"query": ".create table ['fleet data pipeline'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) \n\n['fleet data']\n| take 210\n",
 			"metadata": {
 				"language": "kql"
 			},
