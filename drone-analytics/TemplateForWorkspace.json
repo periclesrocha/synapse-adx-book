@@ -107,7 +107,7 @@
 				"type": "AzureDataExplorerTable",
 				"schema": [],
 				"typeProperties": {
-					"table": "fleet data - pipeline"
+					"table": "['fleet data pipeline']"
 				}
 			},
 			"dependsOn": [
@@ -346,6 +346,18 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Credential1')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {
+					"resourceId": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.ManagedIdentity/userAssignedIdentities/periclesrocha"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
 			"type": "Microsoft.Synapse/workspaces/credentials",
 			"apiVersion": "2019-06-01-preview",
@@ -406,7 +418,7 @@
 					"name": "Chapter 5"
 				},
 				"content": {
-					"query": ".create table ['fleet data simplified'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) ",
+					"query": ".create table ['fleet data pipeline'] (\n    DeviceData: string, \n    LocalDateTime: string, \n    DeviceState: string, \n    CoreTemp: long, \n    CoreStatus: string, \n    Compass: long, \n    Altitude: long, \n    Speed: long, \n    PayloadWeight: long, \n    EventData: string\n) \n\n['fleet data']\n| take 210\n",
 					"metadata": {
 						"language": "kql"
 					},
