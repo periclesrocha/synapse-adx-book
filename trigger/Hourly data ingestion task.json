@@ -1,0 +1,24 @@
+{
+	"name": "Hourly data ingestion task",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Copy telemetry data",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 1,
+				"startTime": "2022-09-17T05:48:00",
+				"timeZone": "Pacific Standard Time"
+			}
+		}
+	}
+}
