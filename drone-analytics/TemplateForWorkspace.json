@@ -646,18 +646,17 @@
 			"location": "eastus"
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/KQL script 1')]",
+			"name": "[concat(parameters('workspaceName'), '/KQL examples')]",
 			"type": "Microsoft.Synapse/workspaces/kqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
+				"folder": {
+					"name": "Chapter 6"
+				},
 				"content": {
-					"query": "['fleet data continuous']\n| count ",
+					"query": "",
 					"metadata": {
 						"language": "kql"
-					},
-					"currentConnection": {
-						"poolName": "droneanalyticsadx",
-						"databaseName": "drone-telemetry"
 					}
 				},
 				"type": "KqlQuery"
