@@ -1,0 +1,15 @@
+{
+	"name": "KQL examples",
+	"properties": {
+		"folder": {
+			"name": "Chapter 6"
+		},
+		"content": {
+			"query": "",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
