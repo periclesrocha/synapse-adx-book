@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b461edd4-331b-4acd-88a9-a80cbf1fa110"
+				"spark.autotune.trackingId": "1f5474f6-7688-4e6a-bb33-1ddbe82e82be"
 			}
 		},
 		"metadata": {
@@ -147,9 +147,9 @@
 				"source": [
 					"from pyspark.sql.types import DateType\r\n",
 					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
-					"df.first()['LocalDate']"
+					"df.select('LocalDateTime','LocalDate').show(5)"
 				],
-				"execution_count": 18
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -167,9 +167,9 @@
 				"source": [
 					"#df['CoreTemp-F'] = df['CoreTemp'] * 1.8 + 32\r\n",
 					"df = df.withColumn('CoreTemp-F', df['CoreTemp'] * 1.8 + 32)\r\n",
-					"df.select('CoreTemp','CoreTemp-F').show()"
+					"df.select('CoreTemp','CoreTemp-F').show(5)"
 				],
-				"execution_count": 24
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
