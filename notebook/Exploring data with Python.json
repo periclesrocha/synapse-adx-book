@@ -3,6 +3,10 @@
 	"properties": {
 		"nbformat": 4,
 		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkdronetl",
+			"type": "BigDataPoolReference"
+		},
 		"sessionProperties": {
 			"driverMemory": "28g",
 			"driverCores": 4,
@@ -13,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7f3fda85-75ae-4b1b-8546-d7c1c1d401bd"
+				"spark.autotune.trackingId": "385c862a-85d8-44d4-b57f-f669d2674951"
 			}
 		},
 		"metadata": {
@@ -21,16 +25,36 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "python"
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl",
+				"name": "sparkdronetl",
+				"type": "Spark",
+				"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
 				"source": [
 					"%%pyspark\n",
 					"\n",
@@ -47,6 +71,259 @@
 					"\n",
 					"display(kustoDf)\n",
 					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import ast\r\n",
+					"import json\r\n",
+					"import matplotlib as mpl\r\n",
+					"import matplotlib.pyplot as plt\r\n",
+					"import numpy as np\r\n",
+					"import pandas as pd\r\n",
+					"\r\n",
+					"mpl.rcParams['agg.path.chunksize'] = 10000"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df.info()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df['LocalDate'] = pd.to_datetime(df['LocalDateTime']).dt.date\r\n",
+					"df.info()\r\n",
+					"print(df['LocalDate'].loc[[0]], print(df['LocalDateTime'].loc[[0]]))"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df['CoreTemp-F'] = df['CoreTemp'] * 1.8 + 32\r\n",
+					"print(df['CoreTemp'].loc[[0,1,2]], print(df['CoreTemp-F'].loc[[0,1,2]]))"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"eventData_json = df['EventData'].apply(lambda x: ast.literal_eval(x))\r\n",
+					"df['AccumulatedDistance'] = eventData_json.apply(lambda x:x.get('accumulatedDistance'))\r\n",
+					"print(df['EventData'].loc[[0,1,2]], print(df['AccumulatedDistance'].loc[[0,1,2]]))"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(df.groupby(['DeviceState'])['DeviceState','CoreTemp'].mean())"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"avgtempA = df['CoreTemp'].mean()\r\n",
+					"avgtempB = df.CoreTemp.mean()\r\n",
+					"print('Average CoreTemp method A: {:.2f}\\nAverage CoreTemp method B: {:.2f}'.format(avgtempA, avgtempB))"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"frequentFlyers = df.loc[(df['AccumulatedDistance'] > 35000) & (df['DeviceState'] == 'Off')]\r\n",
+					"print(frequentFlyers.shape[0])"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Bell Curve\r\n",
+					"\r\n",
+					"meanTemp = df['CoreTemp'].mean()\r\n",
+					"stdTemp = df['CoreTemp'].std()\r\n",
+					"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
+					"\r\n",
+					"# Plotting the bell-shaped curve\r\n",
+					"plt.style.use('seaborn')\r\n",
+					"plt.figure(figsize = (5, 5))\r\n",
+					"plt.plot(df['CoreTemp'], y, linestyle = 'dashed')\r\n",
+					"plt.scatter(df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')\r\n",
+					"\r\n",
+					"plt.show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"plt.hist(df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
+					"plt.show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Box plot, or whisker \r\n",
+					"\r\n",
+					"plt.boxplot(df[['Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM']], meanline=True, showmeans=True)\r\n",
+					"plt.xticks([1,2,3,4], ['Engine 1','Engine 2','Engine 3','Engine 4'])\r\n",
+					"plt.show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import seaborn \r\n",
+					"\r\n",
+					"correlation_matrix = df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude',\r\n",
+					"                         'Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()\r\n",
+					"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
+					"seaborn.heatmap(correlation_matrix, annot=True)"
 				],
 				"execution_count": null
 			}
