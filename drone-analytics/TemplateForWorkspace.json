@@ -688,7 +688,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "9dfbf418-d700-4e98-9a2e-e10b46957a1e"
+						"spark.autotune.trackingId": "1ad14ef2-949c-4750-8d31-5b389666d427"
 					}
 				},
 				"metadata": {
@@ -724,7 +724,8 @@
 						"metadata": {
 							"microsoft": {
 								"language": "python"
-							}
+							},
+							"collapsed": false
 						},
 						"source": [
 							"%%pyspark\n",
@@ -757,7 +758,8 @@
 								"transient": {
 									"deleting": false
 								}
-							}
+							},
+							"collapsed": false
 						},
 						"source": [
 							"import ast\r\n",
@@ -767,10 +769,21 @@
 							"import numpy as np\r\n",
 							"import pandas as pd\r\n",
 							"\r\n",
-							"mpl.rcParams['agg.path.chunksize'] = 10000"
+							"mpl.rcParams['agg.path.chunksize'] = 10000\r\n",
+							"\r\n",
+							"df  = spark.read \\\r\n",
+							"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\r\n",
+							"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\r\n",
+							"    .option(\"kustoCluster\", \"https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net\") \\\r\n",
+							"    .option(\"kustoDatabase\", \"drone-telemetry\") \\\r\n",
+							"    .option(\"kustoQuery\", \"['fleet data']\") \\\r\n",
+							"    .load()\r\n",
+							"\r\n",
+							"display(df)\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -786,10 +799,11 @@
 							}
 						},
 						"source": [
-							"df.info()"
+							"#df.info()\r\n",
+							"df.toPandas().info()"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -805,12 +819,12 @@
 							}
 						},
 						"source": [
-							"df['LocalDate'] = pd.to_datetime(df['LocalDateTime']).dt.date\r\n",
-							"df.info()\r\n",
-							"print(df['LocalDate'].loc[[0]], print(df['LocalDateTime'].loc[[0]]))"
+							"from pyspark.sql.types import DateType\r\n",
+							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
+							"df.select('LocalDateTime','LocalDate').show(5)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 39
 					},
 					{
 						"cell_type": "code",
@@ -826,8 +840,9 @@
 							}
 						},
 						"source": [
-							"df['CoreTemp-F'] = df['CoreTemp'] * 1.8 + 32\r\n",
-							"print(df['CoreTemp'].loc[[0,1,2]], print(df['CoreTemp-F'].loc[[0,1,2]]))"
+							"#df['CoreTemp-F'] = df['CoreTemp'] * 1.8 + 32\r\n",
+							"df = df.withColumn('CoreTemp-F', df['CoreTemp'] * 1.8 + 32)\r\n",
+							"df.select('CoreTemp','CoreTemp-F').show(5)"
 						],
 						"outputs": [],
 						"execution_count": null
@@ -927,22 +942,22 @@
 							}
 						},
 						"source": [
+							"pandas_df = df.toPandas()\r\n",
+							"\r\n",
 							"# Bell Curve\r\n",
 							"\r\n",
-							"meanTemp = df['CoreTemp'].mean()\r\n",
-							"stdTemp = df['CoreTemp'].std()\r\n",
-							"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
+							"meanTemp = pandas_df['CoreTemp'].mean()\r\n",
+							"stdTemp = pandas_df['CoreTemp'].std()\r\n",
+							"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
 							"\r\n",
 							"# Plotting the bell-shaped curve\r\n",
 							"plt.style.use('seaborn')\r\n",
 							"plt.figure(figsize = (5, 5))\r\n",
-							"plt.plot(df['CoreTemp'], y, linestyle = 'dashed')\r\n",
-							"plt.scatter(df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')\r\n",
-							"\r\n",
-							"plt.show()"
+							"plt.plot(pandas_df['CoreTemp'], y, linestyle = 'dashed')\r\n",
+							"plt.scatter(pandas_df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 36
 					},
 					{
 						"cell_type": "code",
@@ -958,11 +973,11 @@
 							}
 						},
 						"source": [
-							"plt.hist(df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
+							"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 33
 					},
 					{
 						"cell_type": "code",
@@ -980,12 +995,12 @@
 						"source": [
 							"# Box plot, or whisker \r\n",
 							"\r\n",
-							"plt.boxplot(df[['Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM']], meanline=True, showmeans=True)\r\n",
+							"plt.boxplot(pandas_df[['Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM']], meanline=True, showmeans=True)\r\n",
 							"plt.xticks([1,2,3,4], ['Engine 1','Engine 2','Engine 3','Engine 4'])\r\n",
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 34
 					},
 					{
 						"cell_type": "code",
@@ -1003,13 +1018,13 @@
 						"source": [
 							"import seaborn \r\n",
 							"\r\n",
-							"correlation_matrix = df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude',\r\n",
+							"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude',\r\n",
 							"                         'Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()\r\n",
 							"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
 							"seaborn.heatmap(correlation_matrix, annot=True)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 35
 					}
 				]
 			},
