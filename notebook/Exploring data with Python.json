@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "909299e4-8b2e-48d1-a110-fccb616f8db1"
+				"spark.autotune.trackingId": "dccd4faf-9f5c-4d63-b6a3-23bf60a6d6bb"
 			}
 		},
 		"metadata": {
@@ -350,6 +350,21 @@
 				"execution_count": 48
 			},
 			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Another helpul way to see the shape of your data is to plot a histogram. It allows you to see what are the most common values on your sample, and, why not, its distribution.\r\n",
+					"\r\n",
+					"Plotting histograms on Python with Matplotlib is easy: "
+				]
+			},
+			{
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
@@ -367,6 +382,19 @@
 					"plt.show()"
 				],
 				"execution_count": 43
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"EXPLAIN BOXPLOTS HERE"
+				]
 			},
 			{
 				"cell_type": "code",
@@ -388,6 +416,19 @@
 					"plt.show()"
 				],
 				"execution_count": 44
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"EXPLAIN CORRELATION MATRIX HERE"
+				]
 			},
 			{
 				"cell_type": "code",
