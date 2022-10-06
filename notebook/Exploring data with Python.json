@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "1f5474f6-7688-4e6a-bb33-1ddbe82e82be"
+				"spark.autotune.trackingId": "909299e4-8b2e-48d1-a110-fccb616f8db1"
 			}
 		},
 		"metadata": {
@@ -49,31 +49,45 @@
 		},
 		"cells": [
 			{
-				"cell_type": "code",
+				"cell_type": "markdown",
 				"metadata": {
-					"microsoft": {
-						"language": "python"
-					},
-					"collapsed": false
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
 				},
 				"source": [
-					"%%pyspark\n",
-					"\n",
-					"# Read data from Azure Data Explorer table(s)\n",
-					"# Full Sample Code available at: https://github.com/Azure/azure-kusto-spark/blob/master/samples/src/main/python/SynapseSample.py\n",
-					"\n",
-					"kustoDf  = spark.read \\\n",
-					"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\n",
-					"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\n",
-					"    .option(\"kustoCluster\", \"https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net\") \\\n",
-					"    .option(\"kustoDatabase\", \"drone-telemetry\") \\\n",
-					"    .option(\"kustoQuery\", \"['fleet data'] | take 10\") \\\n",
-					"    .load()\n",
-					"\n",
-					"display(kustoDf)\n",
+					"# Learn Azure Synapse Data Explorer\r\n",
+					"## Chapter 6 - Data analysis with KQL, Python and Power BI\r\n",
+					"### Exploring Data Explorer pool data with PySpark on Azure Synapse\r\n",
+					"\r\n",
+					"In this notebook, we will use PySpark to retrieve data from our **Drone Telemetry** database on the Data Explorer pool, run through some examples on how to explore data using Azure Synapse notebooks. "
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Library imports and data retrieval \r\n",
+					"#### \r\n",
+					"First, we will import the Python libraries that we will use in this notebook. Here's how they will be used: \r\n",
+					"\r\n",
+					"- MatplotLib: we will use the popular Python library to plot some charts in the bottom of the %notebook\r\n",
+					"- NumPy: used in this notebook to perform some matrix-wide mathematical computations\r\n",
+					"- Pandas: will be used to handle data when plotted with Matplotlib\r\n",
+					"\r\n",
+					"Next, we will select all the data from the fleet data table and store it in memory on a Spark DataFrame which we will call **df**. \r\n",
+					"\r\n",
+					"Finally, we will display the DataFrame to glance at the data and make sure everything worked. \r\n",
 					""
-				],
-				"execution_count": 1
+				]
 			},
 			{
 				"cell_type": "code",
@@ -90,8 +104,6 @@
 					"collapsed": false
 				},
 				"source": [
-					"import ast\r\n",
-					"import json\r\n",
 					"import matplotlib as mpl\r\n",
 					"import matplotlib.pyplot as plt\r\n",
 					"import numpy as np\r\n",
@@ -107,10 +119,26 @@
 					"    .option(\"kustoQuery\", \"['fleet data']\") \\\r\n",
 					"    .load()\r\n",
 					"\r\n",
-					"display(df)\r\n",
-					""
+					"display(df)"
 				],
-				"execution_count": 5
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Printing information about the data frame\r\n",
+					"#### \r\n",
+					"The Pandas library offers a convenient way to print details about data frames using the _info()_ method. We will convert our Spark DataFrame to a Pandas DataFrame and run the _info()_ method to print index dtype and columns, non-null values and memory usage of the data frame. \r\n",
+					"\r\n",
+					""
+				]
 			},
 			{
 				"cell_type": "code",
@@ -126,10 +154,26 @@
 					}
 				},
 				"source": [
-					"#df.info()\r\n",
 					"df.toPandas().info()"
 				],
-				"execution_count": 9
+				"execution_count": 37
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### Performing data transformations\r\n",
+					"#### \r\n",
+					"It's very common to transform data before you present it to users, as sometimes the source data does not present user-frendly formats. Let's explore a couple of opportunities where we can transform data to make it more presentable to users. \r\n",
+					"\r\n",
+					"First, we will create a new LocalDate column which contains the date only (without the time) from the LocalDateTime column. This can make it easier for users to slice the data according by date without having to worry about filtering the time too. "
+				]
 			},
 			{
 				"cell_type": "code",
@@ -147,17 +191,49 @@
 				"source": [
 					"from pyspark.sql.types import DateType\r\n",
 					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
-					"df.select('LocalDateTime','LocalDate').show(5)"
+					"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Next, we will create a new column that shows the value of the CoreTemp column converted to Farenheit. This column will apply the following formula for conversion: \r\n",
+					"\r\n",
+					"```\r\n",
+					"Farenheit = Celsius * 1.8 + 32\r\n",
+					"```"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = df.withColumn('CoreTemp-F', df['CoreTemp'] * 1.8 + 32)\r\n",
+					"df.select('CoreTemp','CoreTemp-F').show(5)"
 				],
 				"execution_count": 39
 			},
 			{
-				"cell_type": "code",
+				"cell_type": "markdown",
 				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
 					"nteract": {
 						"transient": {
 							"deleting": false
@@ -165,11 +241,10 @@
 					}
 				},
 				"source": [
-					"#df['CoreTemp-F'] = df['CoreTemp'] * 1.8 + 32\r\n",
-					"df = df.withColumn('CoreTemp-F', df['CoreTemp'] * 1.8 + 32)\r\n",
-					"df.select('CoreTemp','CoreTemp-F').show(5)"
-				],
-				"execution_count": null
+					"#### Obtaining averages\r\n",
+					"#### \r\n",
+					"Computing measures of central tendency such as averages is a simple task too. You can use the agg function of Spark DataFrames and pass as parameters the column which you want to compute the average, plus the avg parameter. You can also use sum, stdev, max and other operators with the agg function. "
+				]
 			},
 			{
 				"cell_type": "code",
@@ -185,11 +260,23 @@
 					}
 				},
 				"source": [
-					"eventData_json = df['EventData'].apply(lambda x: ast.literal_eval(x))\r\n",
-					"df['AccumulatedDistance'] = eventData_json.apply(lambda x:x.get('accumulatedDistance'))\r\n",
-					"print(df['EventData'].loc[[0,1,2]], print(df['AccumulatedDistance'].loc[[0,1,2]]))"
+					"avgtemp = df.agg({'CoreTemp': 'avg'})\r\n",
+					"print('Average CoreTemp: ',avgtemp.collect()[0][0])"
 				],
-				"execution_count": null
+				"execution_count": 40
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"If you would like to see the average temperature grouped by a certain other column, such as DeviceState, you can do that by using dataframe.groupby(). "
+				]
 			},
 			{
 				"cell_type": "code",
@@ -202,20 +289,17 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
-					"print(df.groupby(['DeviceState'])['DeviceState','CoreTemp'].mean())"
+					"df.groupby('DeviceState').avg('CoreTemp').show(truncate=False)"
 				],
-				"execution_count": null
+				"execution_count": 41
 			},
 			{
-				"cell_type": "code",
+				"cell_type": "markdown",
 				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
 					"nteract": {
 						"transient": {
 							"deleting": false
@@ -223,30 +307,18 @@
 					}
 				},
 				"source": [
-					"avgtempA = df['CoreTemp'].mean()\r\n",
-					"avgtempB = df.CoreTemp.mean()\r\n",
-					"print('Average CoreTemp method A: {:.2f}\\nAverage CoreTemp method B: {:.2f}'.format(avgtempA, avgtempB))"
-				],
-				"execution_count": null
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"frequentFlyers = df.loc[(df['AccumulatedDistance'] > 35000) & (df['DeviceState'] == 'Off')]\r\n",
-					"print(frequentFlyers.shape[0])"
-				],
-				"execution_count": null
+					"#### Plotting charts\r\n",
+					"#### \r\n",
+					"To finalize, we will plot some charts to see our data from a few different angles. \r\n",
+					"\r\n",
+					"We will start by plotting a bell curve, which shows the normal distribution of the CoreTemp data. The bell curve helps what your the mean value of your data is, with all the other values symmetrically distributed around the mean. Plotting the bell curve requires us to compute the probability density function (known as PDF) for the values in the CoreTemp column. The PDF calculates, for a value at any given sample, the relative likelihood that the variable would be close to the value in the sample. Some Python packages, such as SciPy, provide libraries to compute the PDF for you, but we will simply plug in the values here to avoid importing a package only for this need. \r\n",
+					"\r\n",
+					"The formula of the PDF is:\r\n",
+					"\r\n",
+					"![image-alt-text](https://th.bing.com/th/id/R.7954f230bef55eec121723c830175627?rik=A7tEaUbGp21jWw&riu=http%3a%2f%2f38.media.tumblr.com%2ftumblr_lh2vjfMhkE1qaityko1_500.gif&ehk=6OGSxE16pX2atYRoUfbacshkxKuUXw9QSg%2fUkXcVqow%3d&risl=&pid=ImgRaw&r=0)\r\n",
+					"\r\n",
+					"Once we compute the PDF, we will create a plot that uses the CoreTemp data in the X axis, and the values in the PDF in the Y axis. "
+				]
 			},
 			{
 				"cell_type": "code",
@@ -265,7 +337,6 @@
 					"pandas_df = df.toPandas()\r\n",
 					"\r\n",
 					"# Bell Curve\r\n",
-					"\r\n",
 					"meanTemp = pandas_df['CoreTemp'].mean()\r\n",
 					"stdTemp = pandas_df['CoreTemp'].std()\r\n",
 					"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
@@ -273,10 +344,10 @@
 					"# Plotting the bell-shaped curve\r\n",
 					"plt.style.use('seaborn')\r\n",
 					"plt.figure(figsize = (5, 5))\r\n",
-					"plt.plot(pandas_df['CoreTemp'], y, linestyle = 'dashed')\r\n",
+					"plt.plot(pandas_df['CoreTemp'], y, linestyle = 'dashed', alpha=0.5)\r\n",
 					"plt.scatter(pandas_df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')"
 				],
-				"execution_count": 36
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -295,7 +366,7 @@
 					"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
 					"plt.show()"
 				],
-				"execution_count": 33
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -311,13 +382,12 @@
 					}
 				},
 				"source": [
-					"# Box plot, or whisker \r\n",
-					"\r\n",
+					"# Box plot, or whisker\r\n",
 					"plt.boxplot(pandas_df[['Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM']], meanline=True, showmeans=True)\r\n",
 					"plt.xticks([1,2,3,4], ['Engine 1','Engine 2','Engine 3','Engine 4'])\r\n",
 					"plt.show()"
 				],
-				"execution_count": 34
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -340,7 +410,26 @@
 					"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
 					"seaborn.heatmap(correlation_matrix, annot=True)"
 				],
-				"execution_count": 35
+				"execution_count": 45
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df.write.mode(\"overwrite\").saveAsTable('fleet_data')\r\n",
+					""
+				],
+				"execution_count": 50
 			}
 		]
 	}
