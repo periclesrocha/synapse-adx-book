@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dccd4faf-9f5c-4d63-b6a3-23bf60a6d6bb"
+				"spark.autotune.trackingId": "c5902b2a-4375-4515-8c9f-617afeef5adc"
 			}
 		},
 		"metadata": {
@@ -467,6 +467,7 @@
 					}
 				},
 				"source": [
+					"spark.sql(\"CREATE DATABASE IF NOT EXISTS drone_telemetry\")\r\n",
 					"df.write.mode(\"overwrite\").saveAsTable('fleet_data')\r\n",
 					""
 				],
