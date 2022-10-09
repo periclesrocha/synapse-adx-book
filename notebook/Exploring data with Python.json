@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e26b285f-fe59-44cc-b8dc-f7e6095f6b1f"
+				"spark.autotune.trackingId": "33d2507d-9cf8-4a1c-8848-08f48f67caf4"
 			}
 		},
 		"metadata": {
@@ -108,6 +108,9 @@
 					"import matplotlib.pyplot as plt\r\n",
 					"import numpy as np\r\n",
 					"import pandas as pd\r\n",
+					"from pyspark.sql.types import DateType\r\n",
+					"import seaborn \r\n",
+					"\r\n",
 					"\r\n",
 					"mpl.rcParams['agg.path.chunksize'] = 10000\r\n",
 					"\r\n",
