@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dba9859e-bd3d-422f-a5d6-79eb803a9e3d"
+				"spark.autotune.trackingId": "6b1a93c0-72b0-4333-a85a-749bb087db0f"
 			}
 		},
 		"metadata": {
@@ -265,9 +265,9 @@
 					"from pyspark.sql.functions import col, get_json_object\r\n",
 					"df = df.withColumn('deviceName', get_json_object(col('DeviceData'),'$.deviceName').alias('deviceName'))\r\n",
 					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
-					"df.select('DeviceData','EventData','DeviceName','accumulatedDistance').show(5)"
+					"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
 				],
-				"execution_count": 15
+				"execution_count": 31
 			},
 			{
 				"cell_type": "markdown",
@@ -299,9 +299,31 @@
 				},
 				"source": [
 					"temp_avg = df.agg({'CoreTemp': 'avg'})\r\n",
-					"print('CoreTemp - average: ',temp_avg.collect()[0][0])"
+					"temp_median = df.toPandas()['CoreTemp'].median()\r\n",
+					"temp_mode = df.toPandas()['CoreTemp'].mode()\r\n",
+					"print('Average: ',temp_avg.collect()[0][0])\r\n",
+					"print('Median: ',temp_median)\r\n",
+					"print('Mode(s): ',temp_mode)"
 				],
-				"execution_count": 18
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"temp_mode[0]"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
