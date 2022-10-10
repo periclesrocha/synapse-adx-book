@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2ec6fee5-41cd-488c-b3fc-ec97770dfa9d"
+				"spark.autotune.trackingId": "d0651088-5e34-4185-92bf-24e66aadcdc5"
 			}
 		},
 		"metadata": {
@@ -497,24 +497,6 @@
 					"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
 				],
 				"execution_count": 65
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
-				],
-				"execution_count": null
 			},
 			{
 				"cell_type": "code",
