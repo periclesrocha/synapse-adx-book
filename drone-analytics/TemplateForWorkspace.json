@@ -590,7 +590,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "e58a6cb0-054d-46e0-afd2-0bff44c46150"
+						"spark.autotune.trackingId": "55725c95-eadf-404e-9241-8c87e4301f2c"
 					}
 				},
 				"metadata": {
@@ -616,7 +616,6 @@
 						"nodeCount": 3,
 						"cores": 4,
 						"memory": 28,
-						"extraHeader": {},
 						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
@@ -682,6 +681,8 @@
 							"import matplotlib.pyplot as plt\r\n",
 							"import numpy as np\r\n",
 							"import pandas as pd\r\n",
+							"from pyspark.sql.types import DateType\r\n",
+							"import seaborn \r\n",
 							"\r\n",
 							"mpl.rcParams['agg.path.chunksize'] = 10000\r\n",
 							"\r\n",
@@ -696,7 +697,7 @@
 							"display(df)"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 55
 					},
 					{
 						"cell_type": "markdown",
@@ -732,7 +733,7 @@
 							"df.toPandas().info()"
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 56
 					},
 					{
 						"cell_type": "markdown",
@@ -744,11 +745,9 @@
 							}
 						},
 						"source": [
-							"#### Performing data transformations\r\n",
+							"#### Obtaining Measures of central tendency\r\n",
 							"#### \r\n",
-							"It's very common to transform data before you present it to users, as sometimes the source data does not present user-frendly formats. Let's explore a couple of opportunities where we can transform data to make it more presentable to users. \r\n",
-							"\r\n",
-							"First, we will create a new LocalDate column which contains the date only (without the time) from the LocalDateTime column. This can make it easier for users to slice the data according by date without having to worry about filtering the time too. "
+							"Computing the measures of central tendency is a simple task too. You can use the agg function of Spark DataFrames and pass as parameters the column which you want to compute, plus the op parameter. You can also use sum, stdev, max and other operators with the agg function. "
 						]
 					},
 					{
@@ -765,29 +764,15 @@
 							}
 						},
 						"source": [
-							"from pyspark.sql.types import DateType\r\n",
-							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
-							"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
+							"temp_avg = df.toPandas()['CoreTemp'].mean()\r\n",
+							"temp_median = df.toPandas()['CoreTemp'].median()\r\n",
+							"temp_mode = df.toPandas()['CoreTemp'].mode()\r\n",
+							"print('Average: ',temp_avg)\r\n",
+							"print('Median: ',temp_median)\r\n",
+							"print('Mode(s): ',int(temp_mode.to_string(index=False)))"
 						],
 						"outputs": [],
-						"execution_count": 33
-					},
-					{
-						"cell_type": "markdown",
-						"metadata": {
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"Next, we will create a new column that shows the value of the CoreTemp column converted to Farenheit. This column will apply the following formula for conversion: \r\n",
-							"\r\n",
-							"```\r\n",
-							"Farenheit = Celsius * 1.8 + 32\r\n",
-							"```"
-						]
+						"execution_count": 69
 					},
 					{
 						"cell_type": "code",
@@ -803,79 +788,10 @@
 							}
 						},
 						"source": [
-							"df = df.withColumn('CoreTemp-F', df['CoreTemp'] * 1.8 + 32)\r\n",
-							"df.select('CoreTemp','CoreTemp-F').show(5)"
+							"df.agg({'CoreTemp': 'avg'}).show()"
 						],
 						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "markdown",
-						"metadata": {
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"JSON Column"
-						]
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"df = df.withColumn('accumulatedDistance', get_json_object(col(\"EventData\"),\"$.accumulatedDistance\").alias(\"accumulatedDistance\"))"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "markdown",
-						"metadata": {
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#### Obtaining averages\r\n",
-							"#### \r\n",
-							"Computing measures of central tendency such as averages is a simple task too. You can use the agg function of Spark DataFrames and pass as parameters the column which you want to compute the average, plus the avg parameter. You can also use sum, stdev, max and other operators with the agg function. "
-						]
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"avgtemp = df.agg({'CoreTemp': 'avg'})\r\n",
-							"print('Average CoreTemp: ',avgtemp.collect()[0][0])"
-						],
-						"outputs": [],
-						"execution_count": null
+						"execution_count": 71
 					},
 					{
 						"cell_type": "markdown",
@@ -905,10 +821,10 @@
 							"collapsed": false
 						},
 						"source": [
-							"df.groupby('DeviceState').avg('CoreTemp').show(truncate=False)"
+							"df.groupby('DeviceState').avg('CoreTemp').sort('DeviceState').show(truncate=False)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 58
 					},
 					{
 						"cell_type": "markdown",
@@ -961,7 +877,7 @@
 							"plt.scatter(pandas_df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 59
 					},
 					{
 						"cell_type": "markdown",
@@ -996,7 +912,7 @@
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 60
 					},
 					{
 						"cell_type": "markdown",
@@ -1031,7 +947,7 @@
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 61
 					},
 					{
 						"cell_type": "markdown",
@@ -1063,9 +979,127 @@
 							"import seaborn \r\n",
 							"\r\n",
 							"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude',\r\n",
-							"                         'Speed','DistanceFromBase','RFSignal','PayloadWeight', 'accumulatedDistance']].corr()\r\n",
+							"                         'Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()\r\n",
 							"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
 							"seaborn.heatmap(correlation_matrix, annot=True)"
+						],
+						"outputs": [],
+						"execution_count": 62
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### Performing data transformations\r\n",
+							"#### \r\n",
+							"It's very common to transform data before you present it to users, as sometimes the source data does not present user-frendly formats. Let's explore a couple of opportunities where we can transform data to make it more presentable to users. \r\n",
+							"\r\n",
+							"First, we will create a new LocalDate column which contains the date only (without the time) from the LocalDateTime column. This can make it easier for users to slice the data according by date without having to worry about filtering the time too. "
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.types import DateType\r\n",
+							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
+							"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
+						],
+						"outputs": [],
+						"execution_count": 63
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Next, we will create a new column that shows the value of the CoreTemp column converted to Farenheit. This column will apply the following formula for conversion: \r\n",
+							"\r\n",
+							"```\r\n",
+							"Farenheit = Celsius * 1.8 + 32\r\n",
+							"```"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from pyspark.sql.functions import round \r\n",
+							"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
+							"df.select('CoreTemp','CoreTemp-F').show(5)"
+						],
+						"outputs": [],
+						"execution_count": 64
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"from pyspark.sql.functions import col, get_json_object\r\n",
+							"df = df.withColumn('deviceName', get_json_object(col('DeviceData'),'$.deviceName').alias('deviceName'))\r\n",
+							"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
+							"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
+						],
+						"outputs": [],
+						"execution_count": 65
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
 						],
 						"outputs": [],
 						"execution_count": null
@@ -1084,12 +1118,12 @@
 							}
 						},
 						"source": [
-							"spark.sql(\"CREATE DATABASE IF NOT EXISTS drone_telemetry\")\r\n",
-							"df.write.mode(\"overwrite\").saveAsTable('fleet_data')\r\n",
-							""
+							"spark.sql('CREATE DATABASE IF NOT EXISTS drone_telemetry')\r\n",
+							"spark.sql('USE drone_telemetry')\r\n",
+							"df.write.mode('overwrite').saveAsTable('fleet_data')"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 67
 					}
 				]
 			},
