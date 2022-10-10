@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b82353dd-eaea-40c3-b88e-18ce4e2fa3e7"
+				"spark.autotune.trackingId": "545cd2f3-156d-41a3-a95b-d237f1435822"
 			}
 		},
 		"metadata": {
@@ -276,9 +276,9 @@
 					}
 				},
 				"source": [
-					"#### Obtaining averages\r\n",
+					"#### Obtaining Measures of central tendency\r\n",
 					"#### \r\n",
-					"Computing measures of central tendency such as averages is a simple task too. You can use the agg function of Spark DataFrames and pass as parameters the column which you want to compute the average, plus the avg parameter. You can also use sum, stdev, max and other operators with the agg function. "
+					"Computing the measures of central tendency is a simple task too. You can use the agg function of Spark DataFrames and pass as parameters the column which you want to compute, plus the op parameter. You can also use sum, stdev, max and other operators with the agg function. "
 				]
 			},
 			{
@@ -295,7 +295,9 @@
 					}
 				},
 				"source": [
-					"avgtemp = df.agg({'CoreTemp': 'avg'})\r\n",
+					"temp_avg = df.agg({'CoreTemp': np.mean})\r\n",
+					"temp_mean = df.agg({'CoreTemp': np.median})\r\n",
+					"temp_mode = df.agg({'CoreTemp': np.mode})\r\n",
 					"print('Average CoreTemp: ',avgtemp.collect()[0][0])"
 				],
 				"execution_count": null
