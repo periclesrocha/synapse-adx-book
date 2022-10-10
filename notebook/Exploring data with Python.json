@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "6b1a93c0-72b0-4333-a85a-749bb087db0f"
+				"spark.autotune.trackingId": "0acdbb8d-b6de-4903-be03-516ed8498f28"
 			}
 		},
 		"metadata": {
@@ -303,27 +303,9 @@
 					"temp_mode = df.toPandas()['CoreTemp'].mode()\r\n",
 					"print('Average: ',temp_avg.collect()[0][0])\r\n",
 					"print('Median: ',temp_median)\r\n",
-					"print('Mode(s): ',temp_mode)"
+					"print('Mode(s): ',int(temp_mode.to_string(index=False)))"
 				],
-				"execution_count": 42
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"temp_mode[0]"
-				],
-				"execution_count": null
+				"execution_count": 54
 			},
 			{
 				"cell_type": "markdown",
