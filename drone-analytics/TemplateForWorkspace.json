@@ -570,7 +570,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "55725c95-eadf-404e-9241-8c87e4301f2c"
+						"spark.autotune.trackingId": "e51bb685-2892-4f3e-9f81-365dd69be793"
 					}
 				},
 				"metadata": {
@@ -956,8 +956,6 @@
 							}
 						},
 						"source": [
-							"import seaborn \r\n",
-							"\r\n",
 							"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude',\r\n",
 							"                         'Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()\r\n",
 							"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
