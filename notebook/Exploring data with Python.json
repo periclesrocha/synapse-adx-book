@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "545cd2f3-156d-41a3-a95b-d237f1435822"
+				"spark.autotune.trackingId": "b50396ae-4e43-4713-b850-8c1427da669e"
 			}
 		},
 		"metadata": {
@@ -123,7 +123,7 @@
 					"\r\n",
 					"display(df)"
 				],
-				"execution_count": 31
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -158,7 +158,7 @@
 				"source": [
 					"df.toPandas().info()"
 				],
-				"execution_count": 32
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -296,9 +296,11 @@
 				},
 				"source": [
 					"temp_avg = df.agg({'CoreTemp': np.mean})\r\n",
-					"temp_mean = df.agg({'CoreTemp': np.median})\r\n",
+					"temp_median = df.agg({'CoreTemp': np.median})\r\n",
 					"temp_mode = df.agg({'CoreTemp': np.mode})\r\n",
-					"print('Average CoreTemp: ',avgtemp.collect()[0][0])"
+					"print('CoreTemp - average: ',temp_avg.collect()[0][0])\r\n",
+					"print('CoreTemp - median: ',temp_median.collect()[0][0])\r\n",
+					"print('CoreTemp - mode: ',temp_mode.collect()[0][0])"
 				],
 				"execution_count": null
 			},
