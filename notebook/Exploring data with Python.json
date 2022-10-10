@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b50396ae-4e43-4713-b850-8c1427da669e"
+				"spark.autotune.trackingId": "0d1e8e7f-752e-4e7d-8b66-23bd5fb82118"
 			}
 		},
 		"metadata": {
@@ -261,8 +261,9 @@
 					"collapsed": false
 				},
 				"source": [
-					"df = df.withColumn('DeviceName', get_json_object(col('DeviceData'),\"$.DeviceName\").alias(\"DeviceName\"))\r\n",
-					"df = df.withColumn('accumulatedDistance', get_json_object(col(\"EventData\"),\"$.accumulatedDistance\").alias(\"accumulatedDistance\").cast('int'))"
+					"df = df.withColumn('DeviceName', get_json_object(col('DeviceData'),'$.DeviceName').alias('DeviceName'))\r\n",
+					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
+					"df.select('DeviceData','EventData','DeviceName','accumulatedDistance').show(5)"
 				],
 				"execution_count": null
 			},
