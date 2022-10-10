@@ -1,0 +1,17 @@
+{
+	"name": "Distinct top devices by accumulated distance",
+	"properties": {
+		"content": {
+			"query": "SELECT DISTINCT TOP 10 DeviceName, accumulatedDistance\nFROM [drone_telemetry].[dbo].[fleet_data]\nORDER BY accumulatedDistance DESC",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "drone_telemetry",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
