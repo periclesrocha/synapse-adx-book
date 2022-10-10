@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "33d2507d-9cf8-4a1c-8848-08f48f67caf4"
+				"spark.autotune.trackingId": "b82353dd-eaea-40c3-b88e-18ce4e2fa3e7"
 			}
 		},
 		"metadata": {
@@ -110,7 +110,6 @@
 					"import pandas as pd\r\n",
 					"from pyspark.sql.types import DateType\r\n",
 					"import seaborn \r\n",
-					"\r\n",
 					"\r\n",
 					"mpl.rcParams['agg.path.chunksize'] = 10000\r\n",
 					"\r\n",
@@ -229,7 +228,7 @@
 					}
 				},
 				"source": [
-					"df = df.withColumn('CoreTemp-F', df['CoreTemp'] * 1.8 + 32)\r\n",
+					"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
 					"df.select('CoreTemp','CoreTemp-F').show(5)"
 				],
 				"execution_count": null
@@ -262,7 +261,8 @@
 					"collapsed": false
 				},
 				"source": [
-					"df = df.withColumn('accumulatedDistance', get_json_object(col(\"EventData\"),\"$.accumulatedDistance\").alias(\"accumulatedDistance\"))"
+					"df = df.withColumn('DeviceName', get_json_object(col('DeviceData'),\"$.DeviceName\").alias(\"DeviceName\"))\r\n",
+					"df = df.withColumn('accumulatedDistance', get_json_object(col(\"EventData\"),\"$.accumulatedDistance\").alias(\"accumulatedDistance\").cast('int'))"
 				],
 				"execution_count": null
 			},
