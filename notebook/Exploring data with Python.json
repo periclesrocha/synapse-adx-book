@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0d1e8e7f-752e-4e7d-8b66-23bd5fb82118"
+				"spark.autotune.trackingId": "dba9859e-bd3d-422f-a5d6-79eb803a9e3d"
 			}
 		},
 		"metadata": {
@@ -158,7 +158,7 @@
 				"source": [
 					"df.toPandas().info()"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -195,7 +195,7 @@
 					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
 					"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -228,10 +228,11 @@
 					}
 				},
 				"source": [
+					"from pyspark.sql.functions import round \r\n",
 					"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
 					"df.select('CoreTemp','CoreTemp-F').show(5)"
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -261,11 +262,12 @@
 					"collapsed": false
 				},
 				"source": [
-					"df = df.withColumn('DeviceName', get_json_object(col('DeviceData'),'$.DeviceName').alias('DeviceName'))\r\n",
+					"from pyspark.sql.functions import col, get_json_object\r\n",
+					"df = df.withColumn('deviceName', get_json_object(col('DeviceData'),'$.deviceName').alias('deviceName'))\r\n",
 					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
 					"df.select('DeviceData','EventData','DeviceName','accumulatedDistance').show(5)"
 				],
-				"execution_count": null
+				"execution_count": 15
 			},
 			{
 				"cell_type": "markdown",
@@ -296,14 +298,10 @@
 					}
 				},
 				"source": [
-					"temp_avg = df.agg({'CoreTemp': np.mean})\r\n",
-					"temp_median = df.agg({'CoreTemp': np.median})\r\n",
-					"temp_mode = df.agg({'CoreTemp': np.mode})\r\n",
-					"print('CoreTemp - average: ',temp_avg.collect()[0][0])\r\n",
-					"print('CoreTemp - median: ',temp_median.collect()[0][0])\r\n",
-					"print('CoreTemp - mode: ',temp_mode.collect()[0][0])"
+					"temp_avg = df.agg({'CoreTemp': 'avg'})\r\n",
+					"print('CoreTemp - average: ',temp_avg.collect()[0][0])"
 				],
-				"execution_count": null
+				"execution_count": 18
 			},
 			{
 				"cell_type": "markdown",
@@ -333,9 +331,9 @@
 					"collapsed": false
 				},
 				"source": [
-					"df.groupby('DeviceState').avg('CoreTemp').show(truncate=False)"
+					"df.groupby('DeviceState').avg('CoreTemp').sort('DeviceState').show(truncate=False)"
 				],
-				"execution_count": null
+				"execution_count": 21
 			},
 			{
 				"cell_type": "markdown",
