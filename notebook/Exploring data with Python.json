@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c9cc8398-c50f-4354-8c4c-7989ebd4bf20"
+				"spark.autotune.trackingId": "ab690491-d4bf-467f-bc09-3e4ec744177e"
 			}
 		},
 		"metadata": {
@@ -123,7 +123,7 @@
 					"\r\n",
 					"display(df)"
 				],
-				"execution_count": 1
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -159,7 +159,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -197,7 +197,7 @@
 					"print('Median: ',temp_median)\r\n",
 					"print('Mode(s): ',int(temp_mode.to_string(index=False)))"
 				],
-				"execution_count": 69
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +215,7 @@
 				"source": [
 					"df.agg({'CoreTemp': 'avg'}).show()"
 				],
-				"execution_count": 71
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -247,7 +247,7 @@
 				"source": [
 					"df.groupby('DeviceState').avg('CoreTemp').sort('DeviceState').show(truncate=False)"
 				],
-				"execution_count": 58
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -284,7 +284,7 @@
 					"    .filter(df['LocalDateTime'] >= '2021-09-29 12:00:00') \\\r\n",
 					"    .filter(df['LocalDateTime'] <= '2021-09-29 12:10:00'))"
 				],
-				"execution_count": 14
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -332,7 +332,28 @@
 					"plt.plot(pandas_df['CoreTemp'], y, linestyle = 'dashed', alpha=0.5)\r\n",
 					"plt.scatter(pandas_df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')"
 				],
-				"execution_count": 59
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Plot the bellcurve\r\n",
+					"plt.style.use('seaborn')\r\n",
+					"plt.figure(figsize = (5, 5))\r\n",
+					"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')"
+				],
+				"execution_count": 14
 			},
 			{
 				"cell_type": "markdown",
@@ -366,7 +387,7 @@
 					"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
 					"plt.show()"
 				],
-				"execution_count": 60
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -400,7 +421,7 @@
 					"plt.xticks([1,2,3,4], ['Engine 1','Engine 2','Engine 3','Engine 4'])\r\n",
 					"plt.show()"
 				],
-				"execution_count": 61
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -434,7 +455,7 @@
 					"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
 					"seaborn.heatmap(correlation_matrix, annot=True)"
 				],
-				"execution_count": 62
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -471,7 +492,7 @@
 					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
 					"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
 				],
-				"execution_count": 63
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -508,7 +529,7 @@
 					"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
 					"df.select('CoreTemp','CoreTemp-F').show(5)"
 				],
-				"execution_count": 64
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -530,7 +551,7 @@
 					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
 					"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
 				],
-				"execution_count": 65
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -550,7 +571,7 @@
 					"spark.sql('USE drone_telemetry')\r\n",
 					"df.write.mode('overwrite').saveAsTable('fleet_data')"
 				],
-				"execution_count": 67
+				"execution_count": null
 			}
 		]
 	}
