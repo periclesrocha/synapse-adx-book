@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ab690491-d4bf-467f-bc09-3e4ec744177e"
+				"spark.autotune.trackingId": "fa30216f-a35f-46ee-ab50-23a0f3d5aac9"
 			}
 		},
 		"metadata": {
@@ -324,36 +324,14 @@
 					"# Calculate the PDF \r\n",
 					"meanTemp = pandas_df['CoreTemp'].mean()\r\n",
 					"stdTemp = pandas_df['CoreTemp'].std()\r\n",
-					"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
+					"y =  1 / np.sqrt(2 * np.pi * (stdTemp ** 2))  * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
 					"\r\n",
-					"# Plot the bellcurve\r\n",
-					"plt.style.use('seaborn')\r\n",
-					"plt.figure(figsize = (5, 5))\r\n",
-					"plt.plot(pandas_df['CoreTemp'], y, linestyle = 'dashed', alpha=0.5)\r\n",
-					"plt.scatter(pandas_df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')"
-				],
-				"execution_count": 5
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
 					"# Plot the bellcurve\r\n",
 					"plt.style.use('seaborn')\r\n",
 					"plt.figure(figsize = (5, 5))\r\n",
 					"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')"
 				],
-				"execution_count": 14
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -384,10 +362,10 @@
 					}
 				},
 				"source": [
-					"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
+					"plt.hist(pandas_df['CoreTemp'], bins=7)\r\n",
 					"plt.show()"
 				],
-				"execution_count": null
+				"execution_count": 40
 			},
 			{
 				"cell_type": "markdown",
@@ -416,12 +394,14 @@
 					}
 				},
 				"source": [
-					"# Box plot, or whisker\r\n",
-					"plt.boxplot(pandas_df[['Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM']], meanline=True, showmeans=True)\r\n",
-					"plt.xticks([1,2,3,4], ['Engine 1','Engine 2','Engine 3','Engine 4'])\r\n",
+					"# Box plot\r\n",
+					"plt.boxplot(pandas_df[['CoreTemp','Engine1Temp',\r\n",
+					"    'Engine2Temp','Engine3Temp','Engine4Temp']])\r\n",
+					"plt.xticks([1,2,3,4,5], ['CoreTemp','Engine 1',\r\n",
+					"    'Engine 2','Engine 3','Engine 4'])\r\n",
 					"plt.show()"
 				],
-				"execution_count": null
+				"execution_count": 51
 			},
 			{
 				"cell_type": "markdown",
