@@ -590,7 +590,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "315217f5-fdff-4175-be7d-6378203e8b3b"
+						"spark.autotune.trackingId": "7f9702a4-6f0e-4276-b4d6-701c7ea18d19"
 					}
 				},
 				"metadata": {
@@ -697,7 +697,7 @@
 							"display(df)"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 4
 					},
 					{
 						"cell_type": "markdown",
@@ -734,7 +734,7 @@
 							"display(df, summary=True)"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -773,7 +773,7 @@
 							"print('Mode(s): ',int(temp_mode.to_string(index=False)))"
 						],
 						"outputs": [],
-						"execution_count": 69
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -792,7 +792,7 @@
 							"df.agg({'CoreTemp': 'avg'}).show()"
 						],
 						"outputs": [],
-						"execution_count": 71
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -825,7 +825,7 @@
 							"df.groupby('DeviceState').avg('CoreTemp').sort('DeviceState').show(truncate=False)"
 						],
 						"outputs": [],
-						"execution_count": 58
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -863,7 +863,7 @@
 							"    .filter(df['LocalDateTime'] <= '2021-09-29 12:10:00'))"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -903,16 +903,15 @@
 							"# Calculate the PDF \r\n",
 							"meanTemp = pandas_df['CoreTemp'].mean()\r\n",
 							"stdTemp = pandas_df['CoreTemp'].std()\r\n",
-							"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
+							"y =  1 / np.sqrt(2 * np.pi * (stdTemp ** 2))  * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
 							"\r\n",
 							"# Plot the bellcurve\r\n",
 							"plt.style.use('seaborn')\r\n",
 							"plt.figure(figsize = (5, 5))\r\n",
-							"plt.plot(pandas_df['CoreTemp'], y, linestyle = 'dashed', alpha=0.5)\r\n",
-							"plt.scatter(pandas_df['CoreTemp'], y, marker = 'o', s = 25, color = 'red')"
+							"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')"
 						],
 						"outputs": [],
-						"execution_count": 59
+						"execution_count": 19
 					},
 					{
 						"cell_type": "markdown",
@@ -943,11 +942,11 @@
 							}
 						},
 						"source": [
-							"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5, density=True)\r\n",
+							"plt.hist(pandas_df['CoreTemp'], bins=7)\r\n",
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": 60
+						"execution_count": 40
 					},
 					{
 						"cell_type": "markdown",
@@ -976,13 +975,15 @@
 							}
 						},
 						"source": [
-							"# Box plot, or whisker\r\n",
-							"plt.boxplot(pandas_df[['Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM']], meanline=True, showmeans=True)\r\n",
-							"plt.xticks([1,2,3,4], ['Engine 1','Engine 2','Engine 3','Engine 4'])\r\n",
+							"# Box plot\r\n",
+							"plt.boxplot(pandas_df[['CoreTemp','Engine1Temp',\r\n",
+							"    'Engine2Temp','Engine3Temp','Engine4Temp']])\r\n",
+							"plt.xticks([1,2,3,4,5], ['CoreTemp','Engine 1',\r\n",
+							"    'Engine 2','Engine 3','Engine 4'])\r\n",
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": 61
+						"execution_count": 51
 					},
 					{
 						"cell_type": "markdown",
@@ -1017,7 +1018,7 @@
 							"seaborn.heatmap(correlation_matrix, annot=True)"
 						],
 						"outputs": [],
-						"execution_count": 62
+						"execution_count": 52
 					},
 					{
 						"cell_type": "markdown",
@@ -1055,7 +1056,7 @@
 							"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
 						],
 						"outputs": [],
-						"execution_count": 63
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -1093,7 +1094,7 @@
 							"df.select('CoreTemp','CoreTemp-F').show(5)"
 						],
 						"outputs": [],
-						"execution_count": 64
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -1116,7 +1117,7 @@
 							"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
 						],
 						"outputs": [],
-						"execution_count": 65
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -1137,7 +1138,7 @@
 							"df.write.mode('overwrite').saveAsTable('fleet_data')"
 						],
 						"outputs": [],
-						"execution_count": 67
+						"execution_count": null
 					}
 				]
 			},
