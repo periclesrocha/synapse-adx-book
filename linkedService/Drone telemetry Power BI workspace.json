@@ -1,0 +1,11 @@
+{
+	"name": "Drone telemetry Power BI workspace",
+	"properties": {
+		"annotations": [],
+		"type": "PowerBIWorkspace",
+		"typeProperties": {
+			"workspaceID": "f3711a3d-7365-4338-8fdf-4d760c75495a",
+			"tenantID": "d90ba9bf-7821-4a9d-a76b-5d19713a4f06"
+		}
+	}
+}
