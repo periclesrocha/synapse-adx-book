@@ -2,7 +2,7 @@
 	"name": "Distinct top devices by accumulated distance",
 	"properties": {
 		"content": {
-			"query": "SELECT DISTINCT TOP 10 DeviceName, accumulatedDistance\nFROM [drone_telemetry].[dbo].[fleet_data]\nORDER BY accumulatedDistance DESC",
+			"query": "SELECT DISTINCT TOP 10 DeviceName, accumulatedDistance\nFROM [drone_telemetry].[dbo].[fleet_data]\nWHERE LocalDate >= '2021-10-03' AND LocalDate <= '2021-10-09'\nORDER BY accumulatedDistance DESC\n\nSELECT AVG(CoreTemp), AVG(Engine2Temp), AVG(Engine3Temp), AVG(Engine4Temp) \nFROM [drone_telemetry].[dbo].[fleet_data]",
 			"metadata": {
 				"language": "sql"
 			},
