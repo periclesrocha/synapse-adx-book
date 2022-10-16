@@ -264,6 +264,20 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Drone telemetry Power BI workspace')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "PowerBIWorkspace",
+				"typeProperties": {
+					"workspaceID": "f3711a3d-7365-4338-8fdf-4d760c75495a",
+					"tenantID": "d90ba9bf-7821-4a9d-a76b-5d19713a4f06"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/drone-analytics-WorkspaceDefaultSqlServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -403,7 +417,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "SELECT DISTINCT TOP 10 DeviceName, accumulatedDistance\nFROM [drone_telemetry].[dbo].[fleet_data]\nORDER BY accumulatedDistance DESC",
+					"query": "SELECT DISTINCT TOP 10 DeviceName, accumulatedDistance\nFROM [drone_telemetry].[dbo].[fleet_data]\nWHERE LocalDate >= '2021-10-03' AND LocalDate <= '2021-10-09'\nORDER BY accumulatedDistance DESC\n\nSELECT AVG(CoreTemp), AVG(Engine2Temp), AVG(Engine3Temp), AVG(Engine4Temp) \nFROM [drone_telemetry].[dbo].[fleet_data]",
 					"metadata": {
 						"language": "sql"
 					},
@@ -590,7 +604,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "7f9702a4-6f0e-4276-b4d6-701c7ea18d19"
+						"spark.autotune.trackingId": "20b1367b-a9a6-4fca-a59e-b2db04fb2a30"
 					}
 				},
 				"metadata": {
@@ -615,8 +629,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
