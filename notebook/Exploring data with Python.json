@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "20b1367b-a9a6-4fca-a59e-b2db04fb2a30"
+				"spark.autotune.trackingId": "b68d35a1-d2cc-4dc2-9733-5d0caa79f8a8"
 			}
 		},
 		"metadata": {
@@ -123,7 +123,7 @@
 					"\r\n",
 					"display(df)"
 				],
-				"execution_count": 4
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -159,7 +159,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -284,7 +284,7 @@
 					"    .filter(df['LocalDateTime'] >= '2021-09-29 12:00:00') \\\r\n",
 					"    .filter(df['LocalDateTime'] <= '2021-09-29 12:10:00'))"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -465,14 +465,15 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"from pyspark.sql.types import DateType\r\n",
 					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
-					"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
+					"display(df.select('LocalDateTime','LocalDate'))"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -502,14 +503,15 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"from pyspark.sql.functions import round \r\n",
 					"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
-					"df.select('CoreTemp','CoreTemp-F').show(5)"
+					"display(df.select('CoreTemp','CoreTemp-F'))"
 				],
-				"execution_count": null
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -529,9 +531,9 @@
 					"from pyspark.sql.functions import col, get_json_object\r\n",
 					"df = df.withColumn('deviceName', get_json_object(col('DeviceData'),'$.deviceName').alias('deviceName'))\r\n",
 					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
-					"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
+					"display(df.select('DeviceData','EventData','deviceName','accumulatedDistance'))"
 				],
-				"execution_count": null
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
