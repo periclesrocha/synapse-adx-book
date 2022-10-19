@@ -604,7 +604,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "bd771a96-0da1-4b88-8677-84e7f7dc5d0b"
+						"spark.autotune.trackingId": "06b2cf6b-4a89-488c-b0b3-ee03bdc535d9"
 					}
 				},
 				"metadata": {
@@ -711,7 +711,7 @@
 							"display(df)"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 1
 					},
 					{
 						"cell_type": "markdown",
@@ -748,7 +748,7 @@
 							"display(df, summary=True)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 2
 					},
 					{
 						"cell_type": "markdown",
@@ -877,7 +877,7 @@
 							"    .filter(df['LocalDateTime'] <= '2021-09-29 12:10:00'))"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 3
 					},
 					{
 						"cell_type": "markdown",
@@ -1062,15 +1062,16 @@
 								"transient": {
 									"deleting": false
 								}
-							}
+							},
+							"collapsed": false
 						},
 						"source": [
 							"from pyspark.sql.types import DateType\r\n",
 							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
-							"df.select('LocalDateTime','LocalDate').show(5, truncate=False)"
+							"display(df.select('LocalDateTime','LocalDate'))"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 5
 					},
 					{
 						"cell_type": "markdown",
@@ -1100,15 +1101,16 @@
 								"transient": {
 									"deleting": false
 								}
-							}
+							},
+							"collapsed": false
 						},
 						"source": [
 							"from pyspark.sql.functions import round \r\n",
 							"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
-							"df.select('CoreTemp','CoreTemp-F').show(5)"
+							"display(df.select('CoreTemp','CoreTemp-F'))"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -1128,10 +1130,10 @@
 							"from pyspark.sql.functions import col, get_json_object\r\n",
 							"df = df.withColumn('deviceName', get_json_object(col('DeviceData'),'$.deviceName').alias('deviceName'))\r\n",
 							"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
-							"df.select('DeviceData','EventData','deviceName','accumulatedDistance').show(5)"
+							"display(df.select('DeviceData','EventData','deviceName','accumulatedDistance'))"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
