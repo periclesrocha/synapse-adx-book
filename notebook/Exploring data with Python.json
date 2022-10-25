@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "cd67ae8f-14f8-4c79-9191-1e299eb77dc3"
+				"spark.autotune.trackingId": "f7da929a-c370-4001-b3c1-ee06ec2cbf2e"
 			}
 		},
 		"metadata": {
@@ -262,7 +262,8 @@
 				"source": [
 					"Now that we have our new Pandas data frame, we can start building the charts. We will start by plotting a bell curve, which shows the normal distribution your data. For our example, we will use the _**CoreTemp**_ column. The bell curve helps understand the data distribution in your table, with the mean value at the top of the curve, and all the other possible values symmetrically distributed around the mean. Plotting the bell curve requires us to compute what’s called the probability density function for the values in the _**CoreTemp**_ column. The PDF calculates, for a value at any given sample, the relative likelihood that a variable would be close to a value in the dataset. \r\n",
 					"\r\n",
-					"![The probability density function (PDF)](https://github.com/PacktPublishing/Learn-Synapse-Data-Explorer/blob/main/Chapter%2006/probability%20density%20function.png?raw=true)\r\n",
+					"<center><img src=\"https://github.com/PacktPublishing/Learn-Synapse-Data-Explorer/blob/main/Chapter%2006/probability%20density%20function.png?raw=true\"></center>\r\n",
+					"<center><b>The Probability Density Function (PDF)</b></center>\r\n",
 					"\r\n",
 					"Some Python packages, such as SciPy, provide libraries to compute the PDF for you. In this example, we will simply build the expression and plug in the values to avoid importing a package only for this need. After we compute the PDF, we will use the Matplotlib library in Python to plot the chart. \r\n",
 					"\r\n",
