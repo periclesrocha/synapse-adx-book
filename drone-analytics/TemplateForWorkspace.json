@@ -11,6 +11,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'drone-analytics-WorkspaceDefaultSqlServer'"
 		},
+		"AzureMLService1_properties_typeProperties_subscriptionId": {
+			"type": "string",
+			"defaultValue": "9afda4c7-fb2d-4fd7-a1de-02965164af8c"
+		},
+		"AzureMLService1_properties_typeProperties_resourceGroupName": {
+			"type": "string",
+			"defaultValue": "rg-AzureML"
+		},
 		"drone-analytics-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://dronetelemetrydatalake.dfs.core.windows.net"
@@ -261,6 +269,28 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/drone-analytics-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureMLService1')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureMLService",
+				"typeProperties": {
+					"subscriptionId": "[parameters('AzureMLService1_properties_typeProperties_subscriptionId')]",
+					"resourceGroupName": "[parameters('AzureMLService1_properties_typeProperties_resourceGroupName')]",
+					"mlWorkspaceName": "telemetry_experiments",
+					"authentication": "MSI"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
 			]
 		},
 		{
@@ -584,6 +614,198 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Auto ML')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkdronetl24",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "07ca7fa0-1b8d-45d3-b344-9900826c6142"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl24",
+						"name": "sparkdronetl24",
+						"type": "Spark",
+						"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl24",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "2.4",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"import azureml.core\n",
+							"\n",
+							"from azureml.core import Experiment, Workspace, Dataset, Datastore\n",
+							"from azureml.train.automl import AutoMLConfig\n",
+							"from notebookutils import mssparkutils\n",
+							"from azureml.data.dataset_factory import TabularDatasetFactory"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"linkedService_name = \"AzureMLService1\"\n",
+							"experiment_name = \"drone-analytics-fleet_data-20221025052736\"\n",
+							"\n",
+							"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
+							"experiment = Experiment(ws, experiment_name)"
+						],
+						"outputs": [],
+						"execution_count": 3
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
+							"\n",
+							"datastore = Datastore.get_default(ws)\n",
+							"dataset = TabularDatasetFactory.register_spark_dataframe(df, datastore, name = experiment_name + \"-dataset\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"automl_config = AutoMLConfig(spark_context = sc,\n",
+							"                             task = \"classification\",\n",
+							"                             training_data = dataset,\n",
+							"                             label_column_name = \"CoreStatus\",\n",
+							"                             primary_metric = \"accuracy\",\n",
+							"                             experiment_timeout_hours = 1,\n",
+							"                             max_concurrent_iterations = 2,\n",
+							"                             enable_onnx_compatible_models = True)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"run = experiment.submit(automl_config)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"run.wait_for_completion()\n",
+							"\n",
+							"import onnxruntime\n",
+							"import mlflow\n",
+							"import mlflow.onnx\n",
+							"\n",
+							"from mlflow.models.signature import ModelSignature\n",
+							"from mlflow.types import DataType\n",
+							"from mlflow.types.schema import ColSpec, Schema\n",
+							"\n",
+							"# Get best model from automl run\n",
+							"best_run, onnx_model = run.get_output(return_onnx_model=True)\n",
+							"\n",
+							"# Define utility functions to infer the schema of ONNX model\n",
+							"def _infer_schema(data):\n",
+							"    res = []\n",
+							"    for _, col in enumerate(data):\n",
+							"        t = col.type.replace(\"tensor(\", \"\").replace(\")\", \"\")\n",
+							"        if t in [\"bool\"]:\n",
+							"            dt = DataType.boolean\n",
+							"        elif t in [\"int8\", \"uint8\", \"int16\", \"uint16\", \"int32\"]:\n",
+							"            dt = DateType.integer\n",
+							"        elif t in [\"uint32\", \"int64\"]:\n",
+							"            dt = DataType.long\n",
+							"        elif t in [\"float16\", \"bfloat16\", \"float\"]:\n",
+							"            dt = DataType.float\n",
+							"        elif t in [\"double\"]:\n",
+							"            dt = DataType.double\n",
+							"        elif t in [\"string\"]:\n",
+							"            dt = DataType.string\n",
+							"        else:\n",
+							"            raise Exception(\"Unsupported type: \" + t)\n",
+							"        res.append(ColSpec(type=dt, name=col.name))\n",
+							"    return Schema(res)\n",
+							"\n",
+							"def _infer_signature(onnx_model):\n",
+							"    onnx_model_bytes = onnx_model.SerializeToString()\n",
+							"    onnx_runtime = onnxruntime.InferenceSession(onnx_model_bytes)\n",
+							"    inputs = _infer_schema(onnx_runtime.get_inputs())\n",
+							"    outputs = _infer_schema(onnx_runtime.get_outputs())\n",
+							"    return ModelSignature(inputs, outputs)\n",
+							"\n",
+							"# Infer signature of ONNX model\n",
+							"signature = _infer_signature(onnx_model)\n",
+							"\n",
+							"artifact_path = experiment_name + \"_artifact\"\n",
+							"mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())\n",
+							"mlflow.set_experiment(experiment_name)\n",
+							"\n",
+							"with mlflow.start_run() as run:\n",
+							"    # Save the model to the outputs directory for capture\n",
+							"    mlflow.onnx.log_model(onnx_model, artifact_path, signature=signature)\n",
+							"\n",
+							"    # Register the model to AML model registry\n",
+							"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221025052736-Best\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Exploring data with Python')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -604,7 +826,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "06b2cf6b-4a89-488c-b0b3-ee03bdc535d9"
+						"spark.autotune.trackingId": "b68d35a1-d2cc-4dc2-9733-5d0caa79f8a8"
 					}
 				},
 				"metadata": {
@@ -629,8 +851,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -1271,6 +1492,31 @@
 				"nodeSize": "Small",
 				"nodeSizeFamily": "MemoryOptimized",
 				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sparkdronetl24')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 5
+				},
+				"autoScale": {
+					"enabled": false,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 3,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "2.4",
 				"isComputeIsolationEnabled": false,
 				"sessionLevelPackagesEnabled": false,
 				"annotations": []

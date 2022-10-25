@@ -8,6 +8,12 @@
 		"drone-analytics-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
+		"AzureMLService1_properties_typeProperties_subscriptionId": {
+			"value": "9afda4c7-fb2d-4fd7-a1de-02965164af8c"
+		},
+		"AzureMLService1_properties_typeProperties_resourceGroupName": {
+			"value": "rg-AzureML"
+		},
 		"drone-analytics-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://dronetelemetrydatalake.dfs.core.windows.net"
 		},
