@@ -13,7 +13,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "5e3a24ab-14b1-4491-9d34-16ac3feb9846"
+				"spark.autotune.trackingId": "19b9ee5a-be65-46dc-8795-370ce884a760"
 			}
 		},
 		"metadata": {
@@ -49,6 +49,13 @@
 			{
 				"cell_type": "code",
 				"source": [
+					"import azureml.core\r\n",
+					"\r\n",
+					"from azureml.core import Experiment, Workspace, Dataset, Datastore\r\n",
+					"from azureml.train.automl import AutoMLConfig\r\n",
+					"from notebookutils import mssparkutils\r\n",
+					"from azureml.data.dataset_factory import TabularDatasetFactory\r\n",
+					"\r\n",
 					"df  = spark.read \\\r\n",
 					"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\r\n",
 					"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\r\n",
@@ -57,7 +64,80 @@
 					"    .option(\"kustoQuery\", \"['fleet data']\") \\\r\n",
 					"    .load()\r\n",
 					"\r\n",
-					"display(df)"
+					"# display(df)\r\n",
+					"df.describe().show()"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Get a sample. Remove this when development is done\r\n",
+					"df = df.sample(True, 0.001, seed=1234)\r\n",
+					"training_data, validation_data = taxi_df.randomSplit([0.8,0.2], 223)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"linkedService_name = \"AzureMLService1\"\r\n",
+					"experiment_name = \"drone-analytics-fleet_data-20221025052736\"\r\n",
+					"\r\n",
+					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\r\n",
+					"experiment = Experiment(ws, experiment_name)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pandas \r\n",
+					"from azureml.core import Dataset\r\n",
+					"\r\n",
+					"# Get the Azure Machine Learning default datastore\r\n",
+					"datastore = ws.get_default_datastore()\r\n",
+					"training_pd = training_data.toPandas().to_csv('training_pd.csv', index=False)\r\n",
+					"\r\n",
+					"# Convert into an Azure Machine Learning tabular dataset\r\n",
+					"datastore.upload_files(files = ['training_pd.csv'],\r\n",
+					"                       target_path = 'train-dataset/tabular/',\r\n",
+					"                       overwrite = True,\r\n",
+					"                       show_progress = True)\r\n",
+					"dataset_training = Dataset.Tabular.from_delimited_files(path = [(datastore, 'train-dataset/tabular/training_pd.csv')])"
 				],
 				"execution_count": null
 			}
