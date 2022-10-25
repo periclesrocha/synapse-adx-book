@@ -1,0 +1,16 @@
+{
+	"name": "KQL script 1",
+	"properties": {
+		"content": {
+			"query": "['fleet data']\n| count",
+			"metadata": {
+				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
