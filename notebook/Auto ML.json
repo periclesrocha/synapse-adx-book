@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "38ee6482-c14d-4e7a-bd7b-50693c1f3734"
+				"spark.autotune.trackingId": "04d3fa67-aa6c-4aa5-82fb-f69764da620e"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 1
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 3
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -79,7 +79,7 @@
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(df, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -93,21 +93,21 @@
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = True)"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config)"
 				],
-				"execution_count": null
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": null
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -168,7 +168,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221025052736-Best\")"
 				],
-				"execution_count": null
+				"execution_count": 14
 			}
 		]
 	}
