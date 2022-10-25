@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7ea1eac0-1570-4118-becd-f57e83f51546"
+				"spark.autotune.trackingId": "cd67ae8f-14f8-4c79-9191-1e299eb77dc3"
 			}
 		},
 		"metadata": {
@@ -295,6 +295,405 @@
 					""
 				],
 				"execution_count": 26
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Reviewing this chart, we can observe that the data is symmetrical, meaning that for new values of the CoreTemp value you can generally expect values with a probability to be closer to the center of the bell, where most values are. There is little tendency that this column will produce outliers, or many extreme values. \r\n",
+					"\r\n",
+					"Another way to visualize how values are distributed in a certain column is to use a histogram. They are much simpler to produce and give you an easy way to visualize the most common value ranges for your column, as well as the data distribution across the full range of your data. You can produce a histogram easily using Matplotlib: "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5)\r\n",
+					"plt.show()"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"In this case, we can see that there are approximately 30,000 occurrences of _**CoreTemp**_ with values somewhere between about -19 and -3, close to 60,000 values between about -3 and 9, and so on. \r\n",
+					"\r\n",
+					"Another useful way to get a good sense of how your data is spread out is to use box plots. They allow you to easily see the spread and skewness of the values in your dataset by plotting their quartiles. Box plots are also useful to identify outliers as they plot these data points individually beyond the chart area, making them obvious and easy to spot. \r\n",
+					"Producing box plots with Matplotlib in Python is a breeze. Here is an example: \r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"plt.boxplot(pandas_df[['CoreTemp','Engine1Temp',\r\n",
+					"    'Engine2Temp','Engine3Temp','Engine4Temp']])\r\n",
+					"plt.xticks([1,2,3,4,5], ['CoreTemp','Engine 1',\r\n",
+					"    'Engine 2','Engine 3','Engine 4'])\r\n",
+					"plt.show()"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"In this chart, we observe the following: \r\n",
+					"- The areas in the rectangle provide a range from the first quartile (which is the 25th percentile in a normal distribution) to the third quartile (75th percentile). \r\n",
+					"- The maximum and the minimum values are the ranges expressed beyond the rectangles.\r\n",
+					"- The median value is expressed by the horizontal line inside the rectangles.\r\n",
+					"\r\n",
+					"We can also notice that the data distribution is consistent across the temperature values from Engine 1 through Engine 4, which is what we would expect. Additionally, the _**CoreTemp**_ values observe a broader temperature range when compared to that of the individual engines, which could indicate an issue with the drone’s core temperature. \r\n",
+					" \r\n",
+					"Let’s look at one final example of plots. A common task when analyzing data is to try to understand how variables (or columns) in your dataset relate to each other, and how much correlation there is in between them. This can be achieved by using a correlation matrix. Pandas provides a convenient corr function which, given a certain data frame, computes the correlation of columns in such dataset excluding null values. For example, the following code produces a correlation matrix for a subset of our data frame: \r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Now that we have the correlation matrix stored in the correlation_matrix variable, we can use the seaborn library to produce a heatmap which visually represents our matrix. "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
+					"seaborn.heatmap(correlation_matrix, annot=True)"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"The values of a correlation matrix range between -1 and 1. Values that are closer to -1 are called negative correlations, while values closer to 1 are called positive correlations. Negative correlations indicate that the variables are related, but tend to move in opposite directions, while positive correlations indicate that the variables are also related, but tending to move in the same direction. Values closer to 0 represent a weak, or inexistent linear relationship between the variables. \r\n",
+					"\r\n",
+					"In the example illustrated in Figure 6.28, as an example, we notice that probably there is collinearity between _**RFSignal**_ and _**Altitude**_, with a correlation coefficient **-0.78**. \r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Performing data transformation tasks \r\n",
+					"\r\n",
+					"So far, we’ve loaded the data from the Data Explorer pool into a Spark DataFrame and explored the data to understand its schema and the distribution of some columns. We will now look at ways to make this data easier to read and consume for an end user. \r\n",
+					"\r\n",
+					"For the first data transformation task, we will assume a scenario where users will need to build a report and needs a date column to easily filter data, and maybe produce some charts. The user will need the date only, not the specific time the telemetry event was captured. We notice that the table we are working with has a column named _**DateTime**_, and a column named _**LocalDateTime**_. The _**DateTime**_ column stores the date and time in the universal time coordinated (UTC) format, while the _**LocalDateTime**_ stores the same date and time, but at the local time zone. We will produce a new column which contains the date only, without the time, derived from the _**LocalDateTime**_ column. The new column will be named _**LocalDate**_. We can achieve this need by creating a new code cell and using the following code snippet: \r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"The **withColumn** function of the Spark DataFrame object returns a new DataFrame with a new column, or replaces an existing column of the same name with a new one. The name of the new column (or the one being replaced) is the first parameter of the function (_**LocalDate**_ in this example), and the new value that the column will receive is contained in the second parameter (in our case, the _**LocalDateTime**_ column cast to **DateType**). \r\n",
+					"\r\n",
+					"We can then verify that our data transformation worked by displaying a few rows from our DataFrame using the following code: \r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"display(df.select('LocalDateTime','LocalDate'))"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"You can also use data transformation tasks to produce new columns based on calculations. As an example, our dataset contains a _**CoreTemp**_ column which stores the core temperature of the drone at the time the telemetry event was generated. This column contains temperature values using the Celsius scale. Let’s say we want to produce a new column, which displays the equivalent temperature in the Fahrenheit scale. We can perform this task by using the same **withColumn** function we used before, but by applying a simple formula as the column expression for the new column. \r\n",
+					"\r\n",
+					"For simplicity, you can create a new code cell which contains the code to produce the new column and to visualize a few rows with the results at once. "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"from pyspark.sql.functions import round \r\n",
+					"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
+					"display(df.select('CoreTemp','CoreTemp-F'))"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"In this case, we see that the row that contains a _**CoreTemp**_ value of 18 now also contains a _**CoreTemp-F**_ column with the value 64.4. The same applies to each row in the data frame, each row with their respective values. \r\n",
+					"\r\n",
+					"As a final example on data transformation, let’s see how we can extract data from the JSON columns in the dataset to make data analysis easier for our end user. There are two JSON columns in our source data: _**DeviceData**_ and _**EventData**_. These columns contain a JSON document, which may provide different values depending on the telemetry event. An example of the _**DeviceData**_ column has the following data: \r\n",
+					"\r\n",
+					"```\r\n",
+					"{\r\n",
+					"'guid': '90C5BED1-232B-432A-B559-2DAB2F59A97F',\r\n",
+					"'deviceID': 'drn00001', \r\n",
+					"'deviceName': 'DT-F-725C'\r\n",
+					"}\r\n",
+					"```\r\n",
+					"This is a simple JSON document with a collection of name/value pairs which provide some attributes about the drone that generated the telemetry event. Now let’s look at an example of the _**EventData**_ column: \r\n",
+					"\r\n",
+					"```\r\n",
+					"{\r\n",
+					"'averageSpeed': 75, \r\n",
+					"'stageDistance': 2938, \r\n",
+					"'accumulatedDistance': 6977\r\n",
+					"}\r\n",
+					"\r\n",
+					"```\r\n",
+					"\r\n",
+					"This is also a simple JSON document with value/pair combinations. These values provide additional attributes about the drone at the time the telemetry event was generated. \r\n",
+					"\r\n",
+					"Let’s think of an example where an analyst will want to know the drones in the fleet with the highest accumulated distance, as they may require maintenance after reaching a certain mileage. For this purpose, we will create two new columns: one that makes it easier to see what the name of the device in the telemetry event is, and one with the accumulated distance of that drone. We can achieve this by using the following code snippet: "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"from pyspark.sql.functions import col, get_json_object\r\n",
+					"df = df.withColumn('deviceName', get_json_object(col('DeviceData'),'$.deviceName').alias('deviceName'))\r\n",
+					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
+					"display(df.select('DeviceData','EventData','deviceName','accumulatedDistance'))"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"It’s important to note that none of these data transformation tasks resulted in data loss. We are not replacing the values in the source columns with the “transformed” ones, we are always creating new columns with the new, desired values. Additionally, these changes are not written back to the source table schema in the Data Explorer pool database.\r\n",
+					"\r\n",
+					"However, if you would like to perform further analysis using the new columns we just created as part of the data transformation process, there is a way to persist this data and offer a dataset for users to consume. This can be done by implementing a lake database. \r\n",
+					"\r\n",
+					"## Creating a lake database\r\n",
+					"\r\n",
+					"A lake database allows you to store data in ADLS Gen2 while maintaining database and table metadata in Azure Synapse. All your data will be physically written in parquet, delta, or CSV files, but exposed to users as if they were regular SQL tables and databases. Users can then perform queries normally using the serverless SQL pools, or Apache Spark pools, using the SQL and Spark APIs. \r\n",
+					"\r\n",
+					"Using the lake database, we can persist the Spark DataFrame we have been working on to disk, with all the data transformations, and use it as if it were a SQL table. This SQL table can be used for user queries, Power BI reports, or any other purpose that a SQL table could satisfy. \r\n",
+					"\r\n",
+					"To persist our Spark DataFrame on the lake database, we should first create a new database:"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql('CREATE DATABASE IF NOT EXISTS drone_telemetry')"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Next, we will switch the context to the new database with the **USE drone_telemetry** command, and then we will use the Spark DataFrame method **saveAsTable** to write the contents of our Spark DataFrame to this new managed table. "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql('USE drone_telemetry')\r\n",
+					"df.write.mode('overwrite').saveAsTable('fleet_data')"
+				],
+				"execution_count": 37
 			}
 		]
 	}
