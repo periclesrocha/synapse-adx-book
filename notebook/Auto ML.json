@@ -4,7 +4,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "sparkdronetl",
+			"referenceName": "sparkdronetl24",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dc572e1b-cf66-4315-9c1a-9544fdd5596d"
+				"spark.autotune.trackingId": "27c87b81-fd3a-4d5c-9113-e4c36a76f955"
 			}
 		},
 		"metadata": {
@@ -31,15 +31,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl",
-				"name": "sparkdronetl",
+				"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl24",
+				"name": "sparkdronetl24",
 				"type": "Spark",
-				"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl",
+				"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl24",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 4,
 				"memory": 28,
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
