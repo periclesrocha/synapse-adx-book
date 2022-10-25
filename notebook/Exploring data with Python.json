@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e8a057e5-36a1-4141-b95d-daa8ed4cbeac"
+				"spark.autotune.trackingId": "7ea1eac0-1570-4118-becd-f57e83f51546"
 			}
 		},
 		"metadata": {
@@ -159,7 +159,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": null
+				"execution_count": 23
 			},
 			{
 				"cell_type": "markdown",
@@ -204,7 +204,8 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"display(df.select('CoreTemp','LocalDateTime') \\\r\n",
@@ -212,7 +213,7 @@
 					"    .filter(df['LocalDateTime'] <= '2021-11-01 12:10:00'))\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 24
 			},
 			{
 				"cell_type": "markdown",
@@ -224,8 +225,76 @@
 					}
 				},
 				"source": [
-					"This code block produces the result in a table format. To view it as a line chart, simply select the Chart toggle and set the Chart type option to Line chart. "
+					"This code block produces the result in a table format. To view it as a line chart, simply select the Chart toggle and set the Chart type option to Line chart. This feature is very simple to use and doesn’t require any additional libraries to work. However, the chart options are quite limited: you can’t format chat series, change colors, change legend settings, and other settings. For richer charts, you have to choose a different technique.\r\n",
+					"\r\n",
+					"My favorite way to plot charts in notebooks is to use Python libraries such as Matplotlib, Seaborn, Plotly and others.These libraries are already pre-loaded into the Apache Spark environment provided by Azure Synapse, so all you have to do is import them before you use them. Let’s look at a few examples. \r\n",
+					"One of the most popular libraries for data manipulation in Python is the Pandas library. It offers data structures for data manipulation, and a long list of features that make it easy to read and modify data in-memory using Python. Spark DataFrames offer a convenient toPandas method, which converts your Spark DataFrame to a Pandas data frame. Before we start using the Python libraries for data visualization, we have to convert our Spark DataFrame to a Pandas DataFrame, as most of these libraries were built to work with Pandas and not PySpark. \r\n",
+					"Using the toPandas function is simple:"
 				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pandas_df = df.toPandas()"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Now that we have our new Pandas data frame, we can start building the charts. We will start by plotting a bell curve, which shows the normal distribution your data. For our example, we will use the _**CoreTemp**_ column. The bell curve helps understand the data distribution in your table, with the mean value at the top of the curve, and all the other possible values symmetrically distributed around the mean. Plotting the bell curve requires us to compute what’s called the probability density function for the values in the _**CoreTemp**_ column. The PDF calculates, for a value at any given sample, the relative likelihood that a variable would be close to a value in the dataset. \r\n",
+					"\r\n",
+					"![The probability density function (PDF)](https://github.com/PacktPublishing/Learn-Synapse-Data-Explorer/blob/main/Chapter%2006/probability%20density%20function.png?raw=true)\r\n",
+					"\r\n",
+					"Some Python packages, such as SciPy, provide libraries to compute the PDF for you. In this example, we will simply build the expression and plug in the values to avoid importing a package only for this need. After we compute the PDF, we will use the Matplotlib library in Python to plot the chart. \r\n",
+					"\r\n",
+					"The code to compute the PDF and generate the bell curve is as follows: "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Compute the PDF \r\n",
+					"meanTemp = pandas_df['CoreTemp'].mean()\r\n",
+					"stdTemp = pandas_df['CoreTemp'].std()\r\n",
+					"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
+					"\r\n",
+					"# Plot the bell curve\r\n",
+					"plt.style.use('seaborn')\r\n",
+					"plt.figure(figsize = (5, 5))\r\n",
+					"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')\r\n",
+					""
+				],
+				"execution_count": 26
 			}
 		]
 	}
