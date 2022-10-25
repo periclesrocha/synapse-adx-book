@@ -13,7 +13,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "46c5796f-7e6b-4880-8a1f-486623055c81"
+				"spark.autotune.trackingId": "5e3a24ab-14b1-4491-9d34-16ac3feb9846"
 			}
 		},
 		"metadata": {
@@ -30,10 +30,25 @@
 		},
 		"cells": [
 			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Chapter 7: Machine learning\r\n",
+					"\r\n",
+					"Load data into a data frame\r\n",
+					"\r\n",
+					"From: [https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-azure-machine-learning-tutorial](link-URL)"
+				]
+			},
+			{
 				"cell_type": "code",
 				"source": [
-					"mpl.rcParams['agg.path.chunksize'] = 10000\r\n",
-					"\r\n",
 					"df  = spark.read \\\r\n",
 					"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\r\n",
 					"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\r\n",
