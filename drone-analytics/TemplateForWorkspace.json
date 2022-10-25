@@ -556,7 +556,7 @@
 					"name": "Chapter 6"
 				},
 				"content": {
-					"query": "// 1 - All rows, all columns \n['fleet data']\n\n// 2 - All rows, selecting a few columns\n['fleet data']\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 3 - Picking only five rows - limit and take are the same\n['fleet data']\n| take 5\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 4 - Filtering with where\n['fleet data']\n| where LocalDateTime >= datetime(2021-09-27) and LocalDateTime  <= datetime(2021-09-29)\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 5 - Sorting\n['fleet data']\n| where LocalDateTime >= datetime(2021-09-27) and LocalDateTime  <= datetime(2021-09-29)\n| sort by CoreTemp desc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6 - Derived columns using extend\n['fleet data']\n| limit 5\n| extend Hour = datetime_part(\"Hour\", LocalDateTime), Minute = datetime_part(\"Minute\", LocalDateTime)\n| project Hour, Minute, LocalDateTime\n\n// 7 - Aggregations \n['fleet data']\n| summarize average_speed = avg(Speed) by DeviceState\n| order by average_speed desc\n\n// 8 - Using aggregations to get distinct values\n['fleet data']\n| summarize by DeviceState\n| order by DeviceState asc\n\n// 8 - Which days did we have the most deliveries?\n['fleet data']\n| where DeviceState == 'Delivery'\n| summarize _count = count() by bin(LocalDateTime, 1d)\n| order by _count desc \n\n// 9 - Can I put that in a chart?\n['fleet data']\n| where DeviceState == 'Delivery'\n| where LocalDateTime >= datetime(2021-09-29T00:00:00.000000Z) and LocalDateTime <= datetime(2021-10-15T23:59:59.999999Z)\n| summarize _count = count() by bin(LocalDateTime, 1d)\n| project LocalDateTime, _count\n| order by _count desc \n| render timechart  \n\n// 10 - Average temperature per DeviceState each day\n// It looks like errors happen when temperature spike, or is too low \n['fleet data']\n| where LocalDateTime >= ['fleet data']\n| summarize _count = avg(CoreTemp) by bin(LocalDateTime, 1h), DeviceState\n| render timechart  \n\n// 11 - Can I render here? \n['fleet data']\n| summarize temp = avg(CoreTemp) by DeviceState\n| project  DeviceState, temp\n| order by temp desc\n| render columnchart  \n\n// 12 - Percentiles\n['fleet data']\n| summarize percentiles(CoreTemp, 25, 50, 75, 90, 95)\n\n// 15 - Time Series\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0 on LocalDateTime \n    from datetime(2021-10-01) to datetime(2021-10-04) step 1d by DeviceState\n\n// 16 - Obtaining series stats\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-10-01) to datetime(2021-10-04) step 1d by DeviceState\n| extend (MIN, min_idx, MAX, max_idx, AVG, STDEV, VAR) = series_stats(AvgTemp)\n| project MIN, MAX, AVG, STDEV, VAR\n\n// 17 - Detecting outliers\n['fleet data']\n| make-series AvgRPM_Series=avg(Engine2RPM) default=0\non LocalDateTime from datetime(2021-09-27) to datetime(2021-10-17) step 1d by DeviceState\n| extend anomaly_score = series_outliers(AvgRPM_Series)\n| mv-expand anomaly_score to typeof(double), AvgRPM = AvgRPM_Series to typeof(double), LocalDateTime to typeof(datetime)\n| where anomaly_score > 1.5 or anomaly_score < -1.5\n| project LocalDateTime, DeviceState, AvgRPM, anomaly_score\n| order by LocalDateTime asc\n\n// 18 - Using linear regression\n['fleet data']\n| make-series AvgTemp_Series=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-09-27T09:00:00.000000Z) to datetime(2021-09-27T23:59:59.999999Z) step 1h\n| extend (RSquare, Slope, Variance, RVariance, Interception, LineFit)=series_fit_line(AvgTemp_Series)\n| render timechart \n\n\n\n\n\n\n",
+					"query": "// 6.1 - All rows, all columns \n['fleet data']\n\n// 6.2 - All rows, selecting a few columns\n['fleet data']\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.3 - Picking only five rows - limit and take are the same\n['fleet data']\n| take 5\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.4 - using top to get the FIRST few rows\n['fleet data']\n| top 5 by LocalDateTime asc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n\n// 6.5 - Filtering with where\n['fleet data']\n| where LocalDateTime >= datetime(2021-10-30) and LocalDateTime  <= datetime(2021-11-01)\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.6 - Sorting\n['fleet data']\n| where LocalDateTime >= datetime(2021-10-30) and LocalDateTime  <= datetime(2021-11-01)\n| sort by CoreTemp desc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.7 - Derived columns using extend\n['fleet data']\n| limit 5\n| extend Hour = datetime_part(\"Hour\", LocalDateTime), Minute = datetime_part(\"Minute\", LocalDateTime)\n| project Hour, Minute, LocalDateTime\n\n// 6.8 - Aggregations \n['fleet data']\n| summarize average_speed = avg(Speed) by DeviceState\n| order by average_speed desc\n\n// 6.9 - Using aggregations to get distinct values\n['fleet data']\n| summarize by DeviceState\n| order by DeviceState asc\n\n// 6.10 - Which days did we have the most deliveries?\n['fleet data']\n| where DeviceState == 'Delivery'\n| summarize _count = count() by bin(LocalDateTime, 1d)\n| order by _count desc \n\n// 6.11 - Can I put that in a chart?\n['fleet data']\n| where DeviceState == 'Delivery'\n| where LocalDateTime >= datetime(2021-11-01T00:00:00.000000Z) and LocalDateTime <= datetime(2021-11-15T23:59:59.999999Z)| summarize _count = count() by bin(LocalDateTime, 1d)\n| project LocalDateTime, _count\n| order by _count desc \n| render timechart  \n\n// 6.12 - Average temperature per DeviceState each day\n// It looks like errors happen when temperature spike, or is too low \n['fleet data']\n| where LocalDateTime >= datetime(2021-11-01T00:00:00.000000Z) and LocalDateTime <= datetime(2021-11-01T23:59:59.999999Z)\n| summarize _count = avg(CoreTemp) by bin(LocalDateTime, 1h), DeviceState\n| render timechart  \n\n// 6.13 - Can I render here? \n['fleet data']\n| summarize temp = avg(CoreTemp) by DeviceState\n| project  DeviceState, temp\n| order by temp desc\n| render columnchart  \n\n// 6.14 - Percentiles\n['fleet data']\n| summarize percentiles(CoreTemp, 25, 50, 75, 90, 95)\n\n// 6.15 - Time Series\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0 on LocalDateTime \n    from datetime(2021-11-01) to datetime(2021-11-04) step 1d by DeviceState\n\n// 6.16 - Obtaining series stats\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-11-01) to datetime(2021-11-04) step 1d by DeviceState\n| extend (MIN, min_idx, MAX, max_idx, AVG, STDEV, VAR) = series_stats(AvgTemp)\n| project MIN, MAX, AVG, STDEV, VAR\n\n// 6.17 - Detecting outliers\n['fleet data']\n| make-series AvgRPM_Series=avg(Engine2RPM) default=0\non LocalDateTime from datetime(2021-11-01) to datetime(2021-11-19) step 1d by DeviceState\n| extend anomaly_score = series_outliers(AvgRPM_Series)\n| mv-expand anomaly_score to typeof(double), AvgRPM = AvgRPM_Series to typeof(double), LocalDateTime to typeof(datetime)\n| where anomaly_score > 1.5 or anomaly_score < -1.5\n| project LocalDateTime, DeviceState, AvgRPM, anomaly_score\n| order by LocalDateTime asc\n\n// 6.18 - Using linear regression\n['fleet data']\n| make-series AvgTemp_Series=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-11-15T09:00:00.000000Z) to datetime(2021-11-15T23:59:59.999999Z) step 1h\n| extend (RSquare, Slope, Variance, RVariance, Interception, LineFit)=series_fit_line(AvgTemp_Series)\n| render timechart \n\n\n\n\n\n\n",
 					"metadata": {
 						"language": "kql"
 					},
@@ -634,7 +634,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "07ca7fa0-1b8d-45d3-b344-9900826c6142"
+						"spark.autotune.trackingId": "04d3fa67-aa6c-4aa5-82fb-f69764da620e"
 					}
 				},
 				"metadata": {
@@ -659,15 +659,13 @@
 						"sparkVersion": "2.4",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"import azureml.core\n",
 							"\n",
@@ -677,11 +675,10 @@
 							"from azureml.data.dataset_factory import TabularDatasetFactory"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"linkedService_name = \"AzureMLService1\"\n",
 							"experiment_name = \"drone-analytics-fleet_data-20221025052736\"\n",
@@ -690,11 +687,10 @@
 							"experiment = Experiment(ws, experiment_name)"
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
 							"\n",
@@ -702,11 +698,10 @@
 							"dataset = TabularDatasetFactory.register_spark_dataframe(df, datastore, name = experiment_name + \"-dataset\")"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"automl_config = AutoMLConfig(spark_context = sc,\n",
 							"                             task = \"classification\",\n",
@@ -718,29 +713,26 @@
 							"                             enable_onnx_compatible_models = True)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"run = experiment.submit(automl_config)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"run.wait_for_completion()\n",
 							"\n",
@@ -799,7 +791,7 @@
 							"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221025052736-Best\")"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 14
 					}
 				]
 			},
@@ -826,7 +818,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "b68d35a1-d2cc-4dc2-9733-5d0caa79f8a8"
+						"spark.autotune.trackingId": "1557f2a6-e7a4-4c5a-9635-a3c1374c4ecd"
 					}
 				},
 				"metadata": {
@@ -851,7 +843,8 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -932,7 +925,7 @@
 							"display(df)"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 22
 					},
 					{
 						"cell_type": "markdown",
@@ -946,8 +939,8 @@
 						"source": [
 							"#### Printing information about the data frame\r\n",
 							"#### \r\n",
-							"The Pandas library offers a convenient way to print details about data frames using the _info()_ method. We will convert our Spark DataFrame to a Pandas DataFrame and run the _info()_ method to print index dtype and columns, non-null values and memory usage of the data frame. \r\n",
 							"\r\n",
+							"Once we have a dataset in hands, its useful to peek at its structure to see what data we have in hand.  We can do that by using the display function again to show our Spark DataFrame, combined with the summary parameter set to True: \r\n",
 							""
 						]
 					},
@@ -969,7 +962,7 @@
 							"display(df, summary=True)"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 23
 					},
 					{
 						"cell_type": "markdown",
@@ -981,55 +974,10 @@
 							}
 						},
 						"source": [
-							"#### Obtaining Measures of central tendency\r\n",
-							"#### \r\n",
-							"Computing the measures of central tendency is a simple task too. You can use the agg function of Spark DataFrames and pass as parameters the column which you want to compute, plus the op parameter. You can also use sum, stdev, max and other operators with the agg function. "
+							"This displays a summary of your data frame, listing all columns, their type, count of unique values, and count of missing values. Clicking any of the rows highlighted in blue will give you column statistics that include how many occurrences you have of each value present in that column. This is something useful to do immediately after you read data from some source (including, but not limited to data sourced from Data Explorer pools) so that you can better understand the schema of the data you will work with, its data types, how much data you have, and more. "
 						]
 					},
 					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"temp_avg = df.toPandas()['CoreTemp'].mean()\r\n",
-							"temp_median = df.toPandas()['CoreTemp'].median()\r\n",
-							"temp_mode = df.toPandas()['CoreTemp'].mode()\r\n",
-							"print('Average: ',temp_avg)\r\n",
-							"print('Median: ',temp_median)\r\n",
-							"print('Mode(s): ',int(temp_mode.to_string(index=False)))"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"df.agg({'CoreTemp': 'avg'}).show()"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
 						"cell_type": "markdown",
 						"metadata": {
 							"nteract": {
@@ -1039,43 +987,13 @@
 							}
 						},
 						"source": [
-							"If you would like to see the average temperature grouped by a certain other column, such as DeviceState, you can do that by using dataframe.groupby(). "
-						]
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"df.groupby('DeviceState').avg('CoreTemp').sort('DeviceState').show(truncate=False)"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "markdown",
-						"metadata": {
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#### Plotting charts\r\n",
-							"#### \r\n",
+							"## Plotting charts\r\n",
 							"\r\n",
-							"Using Chart view "
+							"Azure Synapse notebooks offer robust support for data visualization. There are three main mechanisms you can use to visualize data with charts using notebooks: \r\n",
+							"1)\tThe Chart feature of the query editor.\r\n",
+							"2)\tUsing the displayHTML command, combined with Java’s D3 library.\r\n",
+							"3)\tUsing external libraries for data visualization.\r\n",
+							"The Chart feature of the query editor works similarly to how we explored it in the Analyzing data with KQL section of this chapter. To plot charts using this feature in an Azure Synapse notebook, all you need to do is use the display function to show the results of a Sparl DataFrame, and then select the Chart toggle next to View. As an example, if we wanted to plot a line chart showing the trend of the CoreTemp column over a span of ten minutes, we could use the following code: "
 						]
 					},
 					{
@@ -1094,11 +1012,12 @@
 						},
 						"source": [
 							"display(df.select('CoreTemp','LocalDateTime') \\\r\n",
-							"    .filter(df['LocalDateTime'] >= '2021-09-29 12:00:00') \\\r\n",
-							"    .filter(df['LocalDateTime'] <= '2021-09-29 12:10:00'))"
+							"    .filter(df['LocalDateTime'] >= '2021-11-01 12:00:00') \\\r\n",
+							"    .filter(df['LocalDateTime'] <= '2021-11-01 12:10:00'))\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 24
 					},
 					{
 						"cell_type": "markdown",
@@ -1110,13 +1029,11 @@
 							}
 						},
 						"source": [
-							"We will start by plotting a bell curve, which shows the normal distribution of the CoreTemp data. The bell curve helps what your the mean value of your data is, with all the other values symmetrically distributed around the mean. Plotting the bell curve requires us to compute the probability density function (known as PDF) for the values in the CoreTemp column. The PDF calculates, for a value at any given sample, the relative likelihood that the variable would be close to the value in the sample. Some Python packages, such as SciPy, provide libraries to compute the PDF for you, but we will simply plug in the values here to avoid importing a package only for this need. \r\n",
+							"This code block produces the result in a table format. To view it as a line chart, simply select the Chart toggle and set the Chart type option to Line chart. This feature is very simple to use and doesn’t require any additional libraries to work. However, the chart options are quite limited: you can’t format chat series, change colors, change legend settings, and other settings. For richer charts, you have to choose a different technique.\r\n",
 							"\r\n",
-							"The formula of the PDF is:\r\n",
-							"\r\n",
-							"![image-alt-text](https://th.bing.com/th/id/R.7954f230bef55eec121723c830175627?rik=A7tEaUbGp21jWw&riu=http%3a%2f%2f38.media.tumblr.com%2ftumblr_lh2vjfMhkE1qaityko1_500.gif&ehk=6OGSxE16pX2atYRoUfbacshkxKuUXw9QSg%2fUkXcVqow%3d&risl=&pid=ImgRaw&r=0)\r\n",
-							"\r\n",
-							"Once we compute the PDF, we will create a plot that uses the CoreTemp data in the X axis, and the values in the PDF in the Y axis. "
+							"My favorite way to plot charts in notebooks is to use Python libraries such as Matplotlib, Seaborn, Plotly and others.These libraries are already pre-loaded into the Apache Spark environment provided by Azure Synapse, so all you have to do is import them before you use them. Let’s look at a few examples. \r\n",
+							"One of the most popular libraries for data manipulation in Python is the Pandas library. It offers data structures for data manipulation, and a long list of features that make it easy to read and modify data in-memory using Python. Spark DataFrames offer a convenient toPandas method, which converts your Spark DataFrame to a Pandas data frame. Before we start using the Python libraries for data visualization, we have to convert our Spark DataFrame to a Pandas DataFrame, as most of these libraries were built to work with Pandas and not PySpark. \r\n",
+							"Using the toPandas function is simple:"
 						]
 					},
 					{
@@ -1133,20 +1050,57 @@
 							}
 						},
 						"source": [
-							"pandas_df = df.toPandas()\r\n",
+							"pandas_df = df.toPandas()"
+						],
+						"outputs": [],
+						"execution_count": 25
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Now that we have our new Pandas data frame, we can start building the charts. We will start by plotting a bell curve, which shows the normal distribution your data. For our example, we will use the _**CoreTemp**_ column. The bell curve helps understand the data distribution in your table, with the mean value at the top of the curve, and all the other possible values symmetrically distributed around the mean. Plotting the bell curve requires us to compute what’s called the probability density function for the values in the _**CoreTemp**_ column. The PDF calculates, for a value at any given sample, the relative likelihood that a variable would be close to a value in the dataset. \r\n",
 							"\r\n",
-							"# Calculate the PDF \r\n",
+							"![The probability density function (PDF)](https://github.com/PacktPublishing/Learn-Synapse-Data-Explorer/blob/main/Chapter%2006/probability%20density%20function.png?raw=true)\r\n",
+							"\r\n",
+							"Some Python packages, such as SciPy, provide libraries to compute the PDF for you. In this example, we will simply build the expression and plug in the values to avoid importing a package only for this need. After we compute the PDF, we will use the Matplotlib library in Python to plot the chart. \r\n",
+							"\r\n",
+							"The code to compute the PDF and generate the bell curve is as follows: "
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Compute the PDF \r\n",
 							"meanTemp = pandas_df['CoreTemp'].mean()\r\n",
 							"stdTemp = pandas_df['CoreTemp'].std()\r\n",
-							"y =  1 / np.sqrt(2 * np.pi * (stdTemp ** 2))  * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
+							"y =  1/(stdTemp * np.sqrt(2 * np.pi)) * np.exp( - (pandas_df['CoreTemp'] - meanTemp)**2 / (2 * stdTemp**2))\r\n",
 							"\r\n",
-							"# Plot the bellcurve\r\n",
+							"# Plot the bell curve\r\n",
 							"plt.style.use('seaborn')\r\n",
 							"plt.figure(figsize = (5, 5))\r\n",
-							"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')"
+							"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 26
 					},
 					{
 						"cell_type": "markdown",
@@ -1158,9 +1112,9 @@
 							}
 						},
 						"source": [
-							"Another helpul way to see the shape of your data is to plot a histogram. It allows you to see what are the most common values on your sample, and, why not, its distribution.\r\n",
+							"Reviewing this chart, we can observe that the data is symmetrical, meaning that for new values of the CoreTemp value you can generally expect values with a probability to be closer to the center of the bell, where most values are. There is little tendency that this column will produce outliers, or many extreme values. \r\n",
 							"\r\n",
-							"Plotting histograms on Python with Matplotlib is easy: "
+							"Another way to visualize how values are distributed in a certain column is to use a histogram. They are much simpler to produce and give you an easy way to visualize the most common value ranges for your column, as well as the data distribution across the full range of your data. You can produce a histogram easily using Matplotlib: "
 						]
 					},
 					{
@@ -1177,11 +1131,11 @@
 							}
 						},
 						"source": [
-							"plt.hist(pandas_df['CoreTemp'], bins=7)\r\n",
+							"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5)\r\n",
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": 40
+						"execution_count": 28
 					},
 					{
 						"cell_type": "markdown",
@@ -1193,7 +1147,11 @@
 							}
 						},
 						"source": [
-							"EXPLAIN BOXPLOTS HERE"
+							"In this case, we can see that there are approximately 30,000 occurrences of _**CoreTemp**_ with values somewhere between about -19 and -3, close to 60,000 values between about -3 and 9, and so on. \r\n",
+							"\r\n",
+							"Another useful way to get a good sense of how your data is spread out is to use box plots. They allow you to easily see the spread and skewness of the values in your dataset by plotting their quartiles. Box plots are also useful to identify outliers as they plot these data points individually beyond the chart area, making them obvious and easy to spot. \r\n",
+							"Producing box plots with Matplotlib in Python is a breeze. Here is an example: \r\n",
+							""
 						]
 					},
 					{
@@ -1210,7 +1168,6 @@
 							}
 						},
 						"source": [
-							"# Box plot\r\n",
 							"plt.boxplot(pandas_df[['CoreTemp','Engine1Temp',\r\n",
 							"    'Engine2Temp','Engine3Temp','Engine4Temp']])\r\n",
 							"plt.xticks([1,2,3,4,5], ['CoreTemp','Engine 1',\r\n",
@@ -1218,7 +1175,7 @@
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": 51
+						"execution_count": 29
 					},
 					{
 						"cell_type": "markdown",
@@ -1230,7 +1187,15 @@
 							}
 						},
 						"source": [
-							"EXPLAIN CORRELATION MATRIX HERE"
+							"In this chart, we observe the following: \r\n",
+							"- The areas in the rectangle provide a range from the first quartile (which is the 25th percentile in a normal distribution) to the third quartile (75th percentile). \r\n",
+							"- The maximum and the minimum values are the ranges expressed beyond the rectangles.\r\n",
+							"- The median value is expressed by the horizontal line inside the rectangles.\r\n",
+							"\r\n",
+							"We can also notice that the data distribution is consistent across the temperature values from Engine 1 through Engine 4, which is what we would expect. Additionally, the _**CoreTemp**_ values observe a broader temperature range when compared to that of the individual engines, which could indicate an issue with the drone’s core temperature. \r\n",
+							" \r\n",
+							"Let’s look at one final example of plots. A common task when analyzing data is to try to understand how variables (or columns) in your dataset relate to each other, and how much correlation there is in between them. This can be achieved by using a correlation matrix. Pandas provides a convenient corr function which, given a certain data frame, computes the correlation of columns in such dataset excluding null values. For example, the following code produces a correlation matrix for a subset of our data frame: \r\n",
+							""
 						]
 					},
 					{
@@ -1247,13 +1212,10 @@
 							}
 						},
 						"source": [
-							"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude',\r\n",
-							"                         'Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()\r\n",
-							"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
-							"seaborn.heatmap(correlation_matrix, annot=True)"
+							"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()"
 						],
 						"outputs": [],
-						"execution_count": 52
+						"execution_count": 30
 					},
 					{
 						"cell_type": "markdown",
@@ -1265,11 +1227,96 @@
 							}
 						},
 						"source": [
-							"#### Performing data transformations\r\n",
-							"#### \r\n",
-							"It's very common to transform data before you present it to users, as sometimes the source data does not present user-frendly formats. Let's explore a couple of opportunities where we can transform data to make it more presentable to users. \r\n",
+							"Now that we have the correlation matrix stored in the correlation_matrix variable, we can use the seaborn library to produce a heatmap which visually represents our matrix. "
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
+							"seaborn.heatmap(correlation_matrix, annot=True)"
+						],
+						"outputs": [],
+						"execution_count": 31
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"The values of a correlation matrix range between -1 and 1. Values that are closer to -1 are called negative correlations, while values closer to 1 are called positive correlations. Negative correlations indicate that the variables are related, but tend to move in opposite directions, while positive correlations indicate that the variables are also related, but tending to move in the same direction. Values closer to 0 represent a weak, or inexistent linear relationship between the variables. \r\n",
 							"\r\n",
-							"First, we will create a new LocalDate column which contains the date only (without the time) from the LocalDateTime column. This can make it easier for users to slice the data according by date without having to worry about filtering the time too. "
+							"In the example illustrated in Figure 6.28, as an example, we notice that probably there is collinearity between _**RFSignal**_ and _**Altitude**_, with a correlation coefficient **-0.78**. \r\n",
+							""
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## Performing data transformation tasks \r\n",
+							"\r\n",
+							"So far, we’ve loaded the data from the Data Explorer pool into a Spark DataFrame and explored the data to understand its schema and the distribution of some columns. We will now look at ways to make this data easier to read and consume for an end user. \r\n",
+							"\r\n",
+							"For the first data transformation task, we will assume a scenario where users will need to build a report and needs a date column to easily filter data, and maybe produce some charts. The user will need the date only, not the specific time the telemetry event was captured. We notice that the table we are working with has a column named _**DateTime**_, and a column named _**LocalDateTime**_. The _**DateTime**_ column stores the date and time in the universal time coordinated (UTC) format, while the _**LocalDateTime**_ stores the same date and time, but at the local time zone. We will produce a new column which contains the date only, without the time, derived from the _**LocalDateTime**_ column. The new column will be named _**LocalDate**_. We can achieve this need by creating a new code cell and using the following code snippet: \r\n",
+							""
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))"
+						],
+						"outputs": [],
+						"execution_count": 32
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"The **withColumn** function of the Spark DataFrame object returns a new DataFrame with a new column, or replaces an existing column of the same name with a new one. The name of the new column (or the one being replaced) is the first parameter of the function (_**LocalDate**_ in this example), and the new value that the column will receive is contained in the second parameter (in our case, the _**LocalDateTime**_ column cast to **DateType**). \r\n",
+							"\r\n",
+							"We can then verify that our data transformation worked by displaying a few rows from our DataFrame using the following code: \r\n",
+							""
 						]
 					},
 					{
@@ -1287,12 +1334,10 @@
 							"collapsed": false
 						},
 						"source": [
-							"from pyspark.sql.types import DateType\r\n",
-							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))\r\n",
 							"display(df.select('LocalDateTime','LocalDate'))"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 33
 					},
 					{
 						"cell_type": "markdown",
@@ -1304,11 +1349,9 @@
 							}
 						},
 						"source": [
-							"Next, we will create a new column that shows the value of the CoreTemp column converted to Farenheit. This column will apply the following formula for conversion: \r\n",
+							"You can also use data transformation tasks to produce new columns based on calculations. As an example, our dataset contains a _**CoreTemp**_ column which stores the core temperature of the drone at the time the telemetry event was generated. This column contains temperature values using the Celsius scale. Let’s say we want to produce a new column, which displays the equivalent temperature in the Fahrenheit scale. We can perform this task by using the same **withColumn** function we used before, but by applying a simple formula as the column expression for the new column. \r\n",
 							"\r\n",
-							"```\r\n",
-							"Farenheit = Celsius * 1.8 + 32\r\n",
-							"```"
+							"For simplicity, you can create a new code cell which contains the code to produce the new column and to visualize a few rows with the results at once. "
 						]
 					},
 					{
@@ -1331,7 +1374,44 @@
 							"display(df.select('CoreTemp','CoreTemp-F'))"
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 34
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"In this case, we see that the row that contains a _**CoreTemp**_ value of 18 now also contains a _**CoreTemp-F**_ column with the value 64.4. The same applies to each row in the data frame, each row with their respective values. \r\n",
+							"\r\n",
+							"As a final example on data transformation, let’s see how we can extract data from the JSON columns in the dataset to make data analysis easier for our end user. There are two JSON columns in our source data: _**DeviceData**_ and _**EventData**_. These columns contain a JSON document, which may provide different values depending on the telemetry event. An example of the _**DeviceData**_ column has the following data: \r\n",
+							"\r\n",
+							"```\r\n",
+							"{\r\n",
+							"'guid': '90C5BED1-232B-432A-B559-2DAB2F59A97F',\r\n",
+							"'deviceID': 'drn00001', \r\n",
+							"'deviceName': 'DT-F-725C'\r\n",
+							"}\r\n",
+							"```\r\n",
+							"This is a simple JSON document with a collection of name/value pairs which provide some attributes about the drone that generated the telemetry event. Now let’s look at an example of the _**EventData**_ column: \r\n",
+							"\r\n",
+							"```\r\n",
+							"{\r\n",
+							"'averageSpeed': 75, \r\n",
+							"'stageDistance': 2938, \r\n",
+							"'accumulatedDistance': 6977\r\n",
+							"}\r\n",
+							"\r\n",
+							"```\r\n",
+							"\r\n",
+							"This is also a simple JSON document with value/pair combinations. These values provide additional attributes about the drone at the time the telemetry event was generated. \r\n",
+							"\r\n",
+							"Let’s think of an example where an analyst will want to know the drones in the fleet with the highest accumulated distance, as they may require maintenance after reaching a certain mileage. For this purpose, we will create two new columns: one that makes it easier to see what the name of the device in the telemetry event is, and one with the accumulated distance of that drone. We can achieve this by using the following code snippet: "
+						]
 					},
 					{
 						"cell_type": "code",
@@ -1354,7 +1434,30 @@
 							"display(df.select('DeviceData','EventData','deviceName','accumulatedDistance'))"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 35
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"It’s important to note that none of these data transformation tasks resulted in data loss. We are not replacing the values in the source columns with the “transformed” ones, we are always creating new columns with the new, desired values. Additionally, these changes are not written back to the source table schema in the Data Explorer pool database.\r\n",
+							"\r\n",
+							"However, if you would like to perform further analysis using the new columns we just created as part of the data transformation process, there is a way to persist this data and offer a dataset for users to consume. This can be done by implementing a lake database. \r\n",
+							"\r\n",
+							"## Creating a lake database\r\n",
+							"\r\n",
+							"A lake database allows you to store data in ADLS Gen2 while maintaining database and table metadata in Azure Synapse. All your data will be physically written in parquet, delta, or CSV files, but exposed to users as if they were regular SQL tables and databases. Users can then perform queries normally using the serverless SQL pools, or Apache Spark pools, using the SQL and Spark APIs. \r\n",
+							"\r\n",
+							"Using the lake database, we can persist the Spark DataFrame we have been working on to disk, with all the data transformations, and use it as if it were a SQL table. This SQL table can be used for user queries, Power BI reports, or any other purpose that a SQL table could satisfy. \r\n",
+							"\r\n",
+							"To persist our Spark DataFrame on the lake database, we should first create a new database:"
+						]
 					},
 					{
 						"cell_type": "code",
@@ -1370,12 +1473,43 @@
 							}
 						},
 						"source": [
-							"spark.sql('CREATE DATABASE IF NOT EXISTS drone_telemetry')\r\n",
+							"spark.sql('CREATE DATABASE IF NOT EXISTS drone_telemetry')"
+						],
+						"outputs": [],
+						"execution_count": 36
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Next, we will switch the context to the new database with the **USE drone_telemetry** command, and then we will use the Spark DataFrame method **saveAsTable** to write the contents of our Spark DataFrame to this new managed table. "
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
 							"spark.sql('USE drone_telemetry')\r\n",
 							"df.write.mode('overwrite').saveAsTable('fleet_data')"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 37
 					}
 				]
 			},
@@ -1523,6 +1657,25 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/KQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/kqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "['fleet data']\n| count",
+					"metadata": {
+						"language": "kql"
+					},
+					"currentConnection": {
+						"poolName": "droneanalyticsadx",
+						"databaseName": "drone-telemetry"
+					}
+				},
+				"type": "KqlQuery"
+			},
+			"dependsOn": []
 		}
 	]
 }
