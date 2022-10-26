@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "67bdaba2-3124-4b8c-a83f-9947bc079cfb"
+				"spark.autotune.trackingId": "0fe71197-2f00-4558-948d-852f2ca2980f"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 8
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 9
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -90,7 +90,7 @@
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(df, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 10
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -105,21 +105,21 @@
 					"                             iteration_timeout_minutes = 10,\n",
 					"                             enable_onnx_compatible_models = True)"
 				],
-				"execution_count": 11
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config)"
 				],
-				"execution_count": 12
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": 13
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +180,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221025052736-Best\")"
 				],
-				"execution_count": 14
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -198,7 +198,7 @@
 				"source": [
 					"# Test best model accuracy\r\n",
 					"validation_data_pd = validation_data.toPandas()\r\n",
-					"y_test = validation_data_pd.pop(\"fareAmount\").to_frame()\r\n",
+					"y_test = validation_data_pd.pop(\"CoreTemp\").to_frame()\r\n",
 					"y_predict = onnx_model.predict(validation_data_pd)"
 				],
 				"execution_count": null
@@ -248,7 +248,7 @@
 					"from sklearn.metrics import mean_squared_error, r2_score\r\n",
 					"\r\n",
 					"# Calculate the R2 score by using the predicted and actual fare prices\r\n",
-					"y_test_actual = y_test[\"fareAmount\"]\r\n",
+					"y_test_actual = y_test[\"CoreTemp\"]\r\n",
 					"r2 = r2_score(y_test_actual, y_predict)\r\n",
 					"\r\n",
 					"# Plot the actual versus predicted fare amount values\r\n",
@@ -256,9 +256,9 @@
 					"plt.figure(figsize=(10, 7))\r\n",
 					"plt.scatter(y_test_actual,y_predict)\r\n",
 					"plt.plot([np.min(y_test_actual), np.max(y_test_actual)], [np.min(y_test_actual), np.max(y_test_actual)], color='lightblue')\r\n",
-					"plt.xlabel(\"Actual Fare Amount\")\r\n",
-					"plt.ylabel(\"Predicted Fare Amount\")\r\n",
-					"plt.title(\"Actual vs Predicted Fare Amount R^2={}\".format(r2))\r\n",
+					"plt.xlabel(\"Actual CoreTemp\")\r\n",
+					"plt.ylabel(\"Predicted CoreTemp\")\r\n",
+					"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
 					"plt.show()\r\n",
 					""
 				],
