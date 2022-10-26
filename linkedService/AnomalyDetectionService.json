@@ -16,7 +16,8 @@
 					"referenceName": "AzureKeyVault1",
 					"type": "LinkedServiceReference"
 				},
-				"secretName": "CognitiveServicesSecret"
+				"secretName": "CognitiveServicesSecret",
+				"secretVersion": "50e0e1c9d8a443e1b4dca45d97f5cf78"
 			}
 		},
 		"connectVia": {
