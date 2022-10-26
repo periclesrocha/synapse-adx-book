@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0fe71197-2f00-4558-948d-852f2ca2980f"
+				"spark.autotune.trackingId": "84989c34-23ad-4346-b9ee-7c4dde87ed4b"
 			}
 		},
 		"metadata": {
@@ -201,7 +201,7 @@
 					"y_test = validation_data_pd.pop(\"CoreTemp\").to_frame()\r\n",
 					"y_predict = onnx_model.predict(validation_data_pd)"
 				],
-				"execution_count": null
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
