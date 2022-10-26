@@ -467,12 +467,12 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "-- This is auto-generated code\nSELECT\n     DeviceState, AVG(CoreTemp) as AvgCoreTemp\nFROM\n    OPENROWSET(\n        BULK 'https://dronetelemetrydatalake.dfs.core.windows.net/raw-data/dataset.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0', \n        HEADER_ROW = TRUE\n    ) \n    WITH (CoreTemp FLOAT, DeviceState VARCHAR(30) COLLATE Latin1_General_100_BIN2_UTF8)\n    AS [rows]\n    GROUP BY DeviceState\n    ORDER BY AVG(CoreTemp) DESC\n",
+					"query": "-- This is auto-generated code\nSELECT\n     DeviceState, AVG(CoreTemp) as AvgCoreTemp\nFROM\n    OPENROWSET(\n        BULK 'https://dronetelemetrydatalake.dfs.core.windows.net/raw-data/dataset.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0', \n        HEADER_ROW = TRUE\n    ) \n    WITH (CoreTemp FLOAT, DeviceState VARCHAR(30) COLLATE Latin1_General_100_BIN2_UTF8)\n    AS [rows]\n    GROUP BY DeviceState\n    ORDER BY AVG(CoreTemp) DESC\n\nSELECT MAX(CoreTemp), MIN(CoreTemp) FROM [fleet_data]",
 					"metadata": {
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "master",
+						"databaseName": "drone_telemetry",
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
@@ -937,7 +937,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "b5e65ed2-78c6-4a3f-a160-bda3e39b16c0"
+						"spark.autotune.trackingId": "22812635-def6-437d-b720-0d0d60426c98"
 					}
 				},
 				"metadata": {
@@ -962,8 +962,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
