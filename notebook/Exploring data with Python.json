@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0462290b-0f37-4140-9537-6f484ba382ba"
+				"spark.autotune.trackingId": "22812635-def6-437d-b720-0d0d60426c98"
 			}
 		},
 		"metadata": {
@@ -123,7 +123,7 @@
 					"\r\n",
 					"display(df)"
 				],
-				"execution_count": 5
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -159,7 +159,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": null
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -213,7 +213,7 @@
 					"    .filter(df['LocalDateTime'] <= '2021-11-01 12:10:00'))\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -248,7 +248,7 @@
 				"source": [
 					"pandas_df = df.toPandas()"
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "markdown",
@@ -295,7 +295,7 @@
 					"plt.scatter(pandas_df['CoreTemp'], y, marker = '.', s = 10, color = 'blue')\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -329,7 +329,7 @@
 					"plt.hist(pandas_df['CoreTemp'], bins=7, alpha=0.5)\r\n",
 					"plt.show()"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "markdown",
@@ -368,7 +368,7 @@
 					"    'Engine 2','Engine 3','Engine 4'])\r\n",
 					"plt.show()"
 				],
-				"execution_count": null
+				"execution_count": 12
 			},
 			{
 				"cell_type": "markdown",
@@ -407,7 +407,7 @@
 				"source": [
 					"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()"
 				],
-				"execution_count": null
+				"execution_count": 13
 			},
 			{
 				"cell_type": "markdown",
@@ -439,7 +439,7 @@
 					"seaborn.set(rc = {'figure.figsize':(14, 8)})\r\n",
 					"seaborn.heatmap(correlation_matrix, annot=True)"
 				],
-				"execution_count": null
+				"execution_count": 14
 			},
 			{
 				"cell_type": "markdown",
@@ -491,7 +491,7 @@
 				"source": [
 					"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))"
 				],
-				"execution_count": null
+				"execution_count": 15
 			},
 			{
 				"cell_type": "markdown",
@@ -526,7 +526,7 @@
 				"source": [
 					"display(df.select('LocalDateTime','LocalDate'))"
 				],
-				"execution_count": null
+				"execution_count": 16
 			},
 			{
 				"cell_type": "markdown",
@@ -562,7 +562,7 @@
 					"df = df.withColumn('CoreTemp-F', round(df['CoreTemp'] * 1.8 + 32,2))\r\n",
 					"display(df.select('CoreTemp','CoreTemp-F'))"
 				],
-				"execution_count": null
+				"execution_count": 17
 			},
 			{
 				"cell_type": "markdown",
@@ -586,14 +586,12 @@
 					"}\r\n",
 					"```\r\n",
 					"This is a simple JSON document with a collection of name/value pairs which provide some attributes about the drone that generated the telemetry event. Now let’s look at an example of the _**EventData**_ column: \r\n",
-					"\r\n",
 					"```\r\n",
 					"{\r\n",
 					"'averageSpeed': 75, \r\n",
 					"'stageDistance': 2938, \r\n",
 					"'accumulatedDistance': 6977\r\n",
 					"}\r\n",
-					"\r\n",
 					"```\r\n",
 					"\r\n",
 					"This is also a simple JSON document with value/pair combinations. These values provide additional attributes about the drone at the time the telemetry event was generated. \r\n",
@@ -621,7 +619,7 @@
 					"df = df.withColumn('accumulatedDistance', get_json_object(col('EventData'),'$.accumulatedDistance').alias('accumulatedDistance').cast('int'))\r\n",
 					"display(df.select('DeviceData','EventData','deviceName','accumulatedDistance'))"
 				],
-				"execution_count": null
+				"execution_count": 18
 			},
 			{
 				"cell_type": "markdown",
@@ -662,7 +660,7 @@
 				"source": [
 					"spark.sql('CREATE DATABASE IF NOT EXISTS drone_telemetry')"
 				],
-				"execution_count": null
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -694,7 +692,7 @@
 					"spark.sql('USE drone_telemetry')\r\n",
 					"df.write.mode('overwrite').saveAsTable('fleet_data')"
 				],
-				"execution_count": null
+				"execution_count": 20
 			}
 		]
 	}
