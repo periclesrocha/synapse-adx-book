@@ -556,7 +556,7 @@
 					"name": "Chapter 6"
 				},
 				"content": {
-					"query": "// 6.1 - All rows, all columns \n['fleet data']\n\n// 6.2 - All rows, selecting a few columns\n['fleet data']\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.3 - Picking only five rows - limit and take are the same\n['fleet data']\n| take 5\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.4 - using top to get the FIRST few rows\n['fleet data']\n| top 5 by LocalDateTime asc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n\n// 6.5 - Filtering with where\n['fleet data']\n| where LocalDateTime >= datetime(2021-10-30) and LocalDateTime  <= datetime(2021-11-01)\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.6 - Sorting\n['fleet data']\n| where LocalDateTime >= datetime(2021-10-30) and LocalDateTime  <= datetime(2021-11-01)\n| sort by CoreTemp desc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.7 - Derived columns using extend\n['fleet data']\n| limit 5\n| extend Hour = datetime_part(\"Hour\", LocalDateTime), Minute = datetime_part(\"Minute\", LocalDateTime)\n| project Hour, Minute, LocalDateTime\n\n// 6.8 - Aggregations \n['fleet data']\n| summarize average_speed = avg(Speed) by DeviceState\n| order by average_speed desc\n\n// 6.9 - Using aggregations to get distinct values\n['fleet data']\n| summarize by DeviceState\n| order by DeviceState asc\n\n// 6.10 - Which days did we have the most deliveries?\n['fleet data']\n| where DeviceState == 'Delivery'\n| summarize _count = count() by bin(LocalDateTime, 1d)\n| order by _count desc \n\n// 6.11 - Can I put that in a chart?\n['fleet data']\n| where DeviceState == 'Delivery'\n| where LocalDateTime >= datetime(2021-11-01T00:00:00.000000Z) and LocalDateTime <= datetime(2021-11-15T23:59:59.999999Z)| summarize _count = count() by bin(LocalDateTime, 1d)\n| project LocalDateTime, _count\n| order by _count desc \n| render timechart  \n\n// 6.12 - Average temperature per DeviceState each day\n// It looks like errors happen when temperature spike, or is too low \n['fleet data']\n| where LocalDateTime >= datetime(2021-11-01T00:00:00.000000Z) and LocalDateTime <= datetime(2021-11-01T23:59:59.999999Z)\n| summarize _count = avg(CoreTemp) by bin(LocalDateTime, 1h), DeviceState\n| render timechart  \n\n// 6.13 - Can I render here? \n['fleet data']\n| summarize temp = avg(CoreTemp) by DeviceState\n| project  DeviceState, temp\n| order by temp desc\n| render columnchart  \n\n// 6.14 - Percentiles\n['fleet data']\n| summarize percentiles(CoreTemp, 25, 50, 75, 90, 95)\n\n// 6.15 - Time Series\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0 on LocalDateTime \n    from datetime(2021-11-01) to datetime(2021-11-04) step 1d by DeviceState\n\n// 6.16 - Obtaining series stats\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-11-01) to datetime(2021-11-04) step 1d by DeviceState\n| extend (MIN, min_idx, MAX, max_idx, AVG, STDEV, VAR) = series_stats(AvgTemp)\n| project MIN, MAX, AVG, STDEV, VAR\n\n// 6.17 - Detecting outliers\n['fleet data']\n| make-series AvgRPM_Series=avg(Engine2RPM) default=0\non LocalDateTime from datetime(2021-11-01) to datetime(2021-11-19) step 1d by DeviceState\n| extend anomaly_score = series_outliers(AvgRPM_Series)\n| mv-expand anomaly_score to typeof(double), AvgRPM = AvgRPM_Series to typeof(double), LocalDateTime to typeof(datetime)\n| where anomaly_score > 1.5 or anomaly_score < -1.5\n| project LocalDateTime, DeviceState, AvgRPM, anomaly_score\n| order by LocalDateTime asc\n\n// 6.18 - Using linear regression\n['fleet data']\n| make-series AvgTemp_Series=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-11-15T09:00:00.000000Z) to datetime(2021-11-15T23:59:59.999999Z) step 1h\n| extend (RSquare, Slope, Variance, RVariance, Interception, LineFit)=series_fit_line(AvgTemp_Series)\n| render timechart \n\n\n\n\n\n\n",
+					"query": "// 6.1 - All rows, all columns \n['fleet data']\n\n// 6.2 - All rows, selecting a few columns\n['fleet data']\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.3 - Picking only five rows - limit and take are the same\n['fleet data']\n| take 5\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.4 - using top to get the FIRST few rows\n['fleet data']\n| top 5 by LocalDateTime asc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n\n// 6.5 - Filtering with where\n['fleet data']\n| where LocalDateTime >= datetime(2021-10-30) and LocalDateTime  <= datetime(2021-11-01)\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.6 - Sorting\n['fleet data']\n| where LocalDateTime >= datetime(2021-10-30) and LocalDateTime  <= datetime(2021-11-01)\n| sort by CoreTemp desc\n| project DeviceData, LocalDateTime, DeviceState, CoreTemp, BatteryTemp, Speed\n\n// 6.7 - Derived columns using extend\n['fleet data']\n| limit 5\n| extend Hour = datetime_part(\"Hour\", LocalDateTime), Minute = datetime_part(\"Minute\", LocalDateTime)\n| project Hour, Minute, LocalDateTime\n\n// 6.8 - Aggregations \n['fleet data']\n| summarize average_speed = avg(Speed) by DeviceState\n| order by average_speed desc\n\n// 6.9 - Using aggregations to get distinct values\n['fleet data']\n| summarize by DeviceState\n| order by DeviceState asc\n\n// 6.10 - Which days did we have the most deliveries?\n['fleet data']\n| where DeviceState == 'Delivery'\n| summarize _count = count() by bin(LocalDateTime, 1d)\n| order by _count desc \n\n// 6.11 - Can I put that in a chart?\n['fleet data']\n| where DeviceState == 'Delivery'\n| where LocalDateTime >= datetime(2021-11-01T00:00:00.000000Z) and LocalDateTime <= datetime(2021-11-15T23:59:59.999999Z)| summarize _count = count() by bin(LocalDateTime, 1d)\n| project LocalDateTime, _count\n| order by _count desc \n| render timechart  \n\n// 6.12 - Average temperature per DeviceState each day\n// It looks like errors happen when temperature spike, or is too low \n['fleet data']\n| where LocalDateTime >= datetime(2021-11-01T00:00:00.000000Z) and LocalDateTime <= datetime(2021-11-01T23:59:59.999999Z)\n| summarize _count = avg(CoreTemp) by bin(LocalDateTime, 1h), DeviceState\n| render timechart  \n\n// 6.13 - Can I render here? \n['fleet data']\n| summarize temp = avg(CoreTemp) by DeviceState\n| project  DeviceState, temp\n| order by temp desc\n| render columnchart  \n\n// 6.14 - Percentiles\n['fleet data']\n| summarize percentiles(CoreTemp, 25, 50, 75, 90, 95)\n\n// 6.15 - Time Series\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0 on LocalDateTime \n    from datetime(2021-11-01) to datetime(2021-11-04) step 1d by DeviceState\n\n// 6.16 - Obtaining series stats\n['fleet data']\n| make-series AvgTemp=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-11-01) to datetime(2021-11-04) step 1d by DeviceState\n| extend (MIN, min_idx, MAX, max_idx, AVG, STDEV, VAR) = series_stats(AvgTemp)\n| project MIN, MAX, AVG, STDEV, VAR\n\n// 6.17 - Detecting outliers\n['fleet data']\n| make-series AvgRPM_Series=avg(Engine2RPM) default=0\non LocalDateTime from datetime(2021-11-01) to datetime(2021-11-19) step 1d by DeviceState\n| extend anomaly_score = series_outliers(AvgRPM_Series)\n| mv-expand anomaly_score to typeof(double), AvgRPM = AvgRPM_Series to typeof(double), LocalDateTime to typeof(datetime)\n| where anomaly_score > 1.5 or anomaly_score < -1.5\n| project LocalDateTime, DeviceState, AvgRPM, anomaly_score\n| order by LocalDateTime asc\n\n// 6.18 - Using linear regression\n['fleet data']\n| make-series AvgTemp_Series=avg(CoreTemp) default=0\non LocalDateTime from datetime(2021-11-15T09:00:00.000000Z) to datetime(2021-11-15T23:59:59.999999Z) step 1h\n| extend (RSquare, Slope, Variance, RVariance, Interception, LineFit)=series_fit_line(AvgTemp_Series)\n| render timechart ",
 					"metadata": {
 						"language": "kql"
 					},
@@ -634,7 +634,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "04d3fa67-aa6c-4aa5-82fb-f69764da620e"
+						"spark.autotune.trackingId": "84989c34-23ad-4346-b9ee-7c4dde87ed4b"
 					}
 				},
 				"metadata": {
@@ -675,7 +675,7 @@
 							"from azureml.data.dataset_factory import TabularDatasetFactory"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -687,18 +687,29 @@
 							"experiment = Experiment(ws, experiment_name)"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
 						"source": [
-							"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
+							"df  = spark.read \\\n",
+							"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\n",
+							"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\n",
+							"    .option(\"kustoCluster\", \"https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net\") \\\n",
+							"    .option(\"kustoDatabase\", \"drone-telemetry\") \\\n",
+							"    .option(\"kustoQuery\", \"['fleet data']\") \\\n",
+							"    .load()\n",
+							"\n",
+							"# display(df)\n",
+							"df.describe().show()\n",
+							"\n",
+							"#df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
 							"\n",
 							"datastore = Datastore.get_default(ws)\n",
 							"dataset = TabularDatasetFactory.register_spark_dataframe(df, datastore, name = experiment_name + \"-dataset\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 3
 					},
 					{
 						"cell_type": "code",
@@ -708,12 +719,13 @@
 							"                             training_data = dataset,\n",
 							"                             label_column_name = \"CoreStatus\",\n",
 							"                             primary_metric = \"accuracy\",\n",
-							"                             experiment_timeout_hours = 1,\n",
+							"                             experiment_timeout_minutes = 30,\n",
 							"                             max_concurrent_iterations = 2,\n",
+							"                             iteration_timeout_minutes = 10,\n",
 							"                             enable_onnx_compatible_models = True)"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -721,7 +733,7 @@
 							"run = experiment.submit(automl_config)"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -729,7 +741,7 @@
 							"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -791,7 +803,114 @@
 							"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221025052736-Best\")"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 7
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Test best model accuracy\r\n",
+							"validation_data_pd = validation_data.toPandas()\r\n",
+							"y_test = validation_data_pd.pop(\"CoreTemp\").to_frame()\r\n",
+							"y_predict = onnx_model.predict(validation_data_pd)"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from sklearn.metrics import mean_squared_error\r\n",
+							"from math import sqrt\r\n",
+							"\r\n",
+							"# Calculate root-mean-square error\r\n",
+							"y_actual = y_test.values.flatten().tolist()\r\n",
+							"rmse = sqrt(mean_squared_error(y_actual, y_predict))\r\n",
+							"\r\n",
+							"print(\"Root Mean Square Error:\")\r\n",
+							"print(rmse)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import matplotlib.pyplot as plt\r\n",
+							"import numpy as np\r\n",
+							"from sklearn.metrics import mean_squared_error, r2_score\r\n",
+							"\r\n",
+							"# Calculate the R2 score by using the predicted and actual fare prices\r\n",
+							"y_test_actual = y_test[\"CoreTemp\"]\r\n",
+							"r2 = r2_score(y_test_actual, y_predict)\r\n",
+							"\r\n",
+							"# Plot the actual versus predicted fare amount values\r\n",
+							"plt.style.use('ggplot')\r\n",
+							"plt.figure(figsize=(10, 7))\r\n",
+							"plt.scatter(y_test_actual,y_predict)\r\n",
+							"plt.plot([np.min(y_test_actual), np.max(y_test_actual)], [np.min(y_test_actual), np.max(y_test_actual)], color='lightblue')\r\n",
+							"plt.xlabel(\"Actual CoreTemp\")\r\n",
+							"plt.ylabel(\"Predicted CoreTemp\")\r\n",
+							"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
+							"plt.show()\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"description = 'My automated ML model'\r\n",
+							"model_path='outputs/model.pkl'\r\n",
+							"model = best_run.register_model(model_name = 'DeviceTelemetry', model_path = model_path, description = description)\r\n",
+							"print(model.name, model.version)"
+						],
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},
@@ -818,7 +937,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "1557f2a6-e7a4-4c5a-9635-a3c1374c4ecd"
+						"spark.autotune.trackingId": "b5e65ed2-78c6-4a3f-a160-bda3e39b16c0"
 					}
 				},
 				"metadata": {
@@ -925,7 +1044,7 @@
 							"display(df)"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 6
 					},
 					{
 						"cell_type": "markdown",
@@ -962,7 +1081,7 @@
 							"display(df, summary=True)"
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 7
 					},
 					{
 						"cell_type": "markdown",
@@ -1017,7 +1136,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 8
 					},
 					{
 						"cell_type": "markdown",
@@ -1053,7 +1172,7 @@
 							"pandas_df = df.toPandas()"
 						],
 						"outputs": [],
-						"execution_count": 25
+						"execution_count": 9
 					},
 					{
 						"cell_type": "markdown",
@@ -1067,7 +1186,8 @@
 						"source": [
 							"Now that we have our new Pandas data frame, we can start building the charts. We will start by plotting a bell curve, which shows the normal distribution your data. For our example, we will use the _**CoreTemp**_ column. The bell curve helps understand the data distribution in your table, with the mean value at the top of the curve, and all the other possible values symmetrically distributed around the mean. Plotting the bell curve requires us to compute what’s called the probability density function for the values in the _**CoreTemp**_ column. The PDF calculates, for a value at any given sample, the relative likelihood that a variable would be close to a value in the dataset. \r\n",
 							"\r\n",
-							"![The probability density function (PDF)](https://github.com/PacktPublishing/Learn-Synapse-Data-Explorer/blob/main/Chapter%2006/probability%20density%20function.png?raw=true)\r\n",
+							"<center><img src=\"https://github.com/PacktPublishing/Learn-Synapse-Data-Explorer/blob/main/Chapter%2006/probability%20density%20function.png?raw=true\"></center>\r\n",
+							"<center><b>The Probability Density Function (PDF)</b></center>\r\n",
 							"\r\n",
 							"Some Python packages, such as SciPy, provide libraries to compute the PDF for you. In this example, we will simply build the expression and plug in the values to avoid importing a package only for this need. After we compute the PDF, we will use the Matplotlib library in Python to plot the chart. \r\n",
 							"\r\n",
@@ -1100,7 +1220,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 10
 					},
 					{
 						"cell_type": "markdown",
@@ -1135,7 +1255,7 @@
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 11
 					},
 					{
 						"cell_type": "markdown",
@@ -1175,7 +1295,7 @@
 							"plt.show()"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 12
 					},
 					{
 						"cell_type": "markdown",
@@ -1215,7 +1335,7 @@
 							"correlation_matrix = pandas_df[['Engine1RPM','Engine1Temp','CoreTemp','BatteryTemp','Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight']].corr()"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 13
 					},
 					{
 						"cell_type": "markdown",
@@ -1248,7 +1368,7 @@
 							"seaborn.heatmap(correlation_matrix, annot=True)"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 14
 					},
 					{
 						"cell_type": "markdown",
@@ -1301,7 +1421,7 @@
 							"df = df.withColumn('LocalDate', df['LocalDateTime'].cast(DateType()))"
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 15
 					},
 					{
 						"cell_type": "markdown",
@@ -1337,7 +1457,7 @@
 							"display(df.select('LocalDateTime','LocalDate'))"
 						],
 						"outputs": [],
-						"execution_count": 33
+						"execution_count": 16
 					},
 					{
 						"cell_type": "markdown",
@@ -1374,7 +1494,7 @@
 							"display(df.select('CoreTemp','CoreTemp-F'))"
 						],
 						"outputs": [],
-						"execution_count": 34
+						"execution_count": 17
 					},
 					{
 						"cell_type": "markdown",
@@ -1398,14 +1518,12 @@
 							"}\r\n",
 							"```\r\n",
 							"This is a simple JSON document with a collection of name/value pairs which provide some attributes about the drone that generated the telemetry event. Now let’s look at an example of the _**EventData**_ column: \r\n",
-							"\r\n",
 							"```\r\n",
 							"{\r\n",
 							"'averageSpeed': 75, \r\n",
 							"'stageDistance': 2938, \r\n",
 							"'accumulatedDistance': 6977\r\n",
 							"}\r\n",
-							"\r\n",
 							"```\r\n",
 							"\r\n",
 							"This is also a simple JSON document with value/pair combinations. These values provide additional attributes about the drone at the time the telemetry event was generated. \r\n",
@@ -1434,7 +1552,7 @@
 							"display(df.select('DeviceData','EventData','deviceName','accumulatedDistance'))"
 						],
 						"outputs": [],
-						"execution_count": 35
+						"execution_count": 18
 					},
 					{
 						"cell_type": "markdown",
@@ -1476,7 +1594,7 @@
 							"spark.sql('CREATE DATABASE IF NOT EXISTS drone_telemetry')"
 						],
 						"outputs": [],
-						"execution_count": 36
+						"execution_count": 19
 					},
 					{
 						"cell_type": "markdown",
@@ -1509,7 +1627,160 @@
 							"df.write.mode('overwrite').saveAsTable('fleet_data')"
 						],
 						"outputs": [],
-						"execution_count": 37
+						"execution_count": 20
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Machine learning example')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "19b9ee5a-be65-46dc-8795-370ce884a760"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Chapter 7: Machine learning\r\n",
+							"\r\n",
+							"Load data into a data frame\r\n",
+							"\r\n",
+							"From: [https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-azure-machine-learning-tutorial](link-URL)"
+						]
+					},
+					{
+						"cell_type": "code",
+						"source": [
+							"import azureml.core\r\n",
+							"\r\n",
+							"from azureml.core import Experiment, Workspace, Dataset, Datastore\r\n",
+							"from azureml.train.automl import AutoMLConfig\r\n",
+							"from notebookutils import mssparkutils\r\n",
+							"from azureml.data.dataset_factory import TabularDatasetFactory\r\n",
+							"\r\n",
+							"df  = spark.read \\\r\n",
+							"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\r\n",
+							"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\r\n",
+							"    .option(\"kustoCluster\", \"https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net\") \\\r\n",
+							"    .option(\"kustoDatabase\", \"drone-telemetry\") \\\r\n",
+							"    .option(\"kustoQuery\", \"['fleet data']\") \\\r\n",
+							"    .load()\r\n",
+							"\r\n",
+							"# display(df)\r\n",
+							"df.describe().show()"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Get a sample. Remove this when development is done\r\n",
+							"df = df.sample(True, 0.001, seed=1234)\r\n",
+							"training_data, validation_data = taxi_df.randomSplit([0.8,0.2], 223)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"linkedService_name = \"AzureMLService1\"\r\n",
+							"experiment_name = \"drone-analytics-fleet_data-20221025052736\"\r\n",
+							"\r\n",
+							"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\r\n",
+							"experiment = Experiment(ws, experiment_name)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import pandas \r\n",
+							"from azureml.core import Dataset\r\n",
+							"\r\n",
+							"# Get the Azure Machine Learning default datastore\r\n",
+							"datastore = ws.get_default_datastore()\r\n",
+							"training_pd = training_data.toPandas().to_csv('training_pd.csv', index=False)\r\n",
+							"\r\n",
+							"# Convert into an Azure Machine Learning tabular dataset\r\n",
+							"datastore.upload_files(files = ['training_pd.csv'],\r\n",
+							"                       target_path = 'train-dataset/tabular/',\r\n",
+							"                       overwrite = True,\r\n",
+							"                       show_progress = True)\r\n",
+							"dataset_training = Dataset.Tabular.from_delimited_files(path = [(datastore, 'train-dataset/tabular/training_pd.csv')])"
+						],
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},
@@ -1657,25 +1928,6 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/KQL script 1')]",
-			"type": "Microsoft.Synapse/workspaces/kqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "['fleet data']\n| count",
-					"metadata": {
-						"language": "kql"
-					},
-					"currentConnection": {
-						"poolName": "droneanalyticsadx",
-						"databaseName": "drone-telemetry"
-					}
-				},
-				"type": "KqlQuery"
-			},
-			"dependsOn": []
 		}
 	]
 }
