@@ -11,6 +11,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'drone-analytics-WorkspaceDefaultSqlServer'"
 		},
+		"AnomalyDetectionService_properties_typeProperties_subscriptionId": {
+			"type": "string",
+			"defaultValue": "9afda4c7-fb2d-4fd7-a1de-02965164af8c"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://dronetelemetryvault.vault.azure.net/"
+		},
 		"AzureMLService1_properties_typeProperties_subscriptionId": {
 			"type": "string",
 			"defaultValue": "9afda4c7-fb2d-4fd7-a1de-02965164af8c"
@@ -270,6 +278,52 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/drone-analytics-WorkspaceDefaultStorage')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AnomalyDetectionService')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "CognitiveService",
+				"typeProperties": {
+					"subscriptionId": "[parameters('AnomalyDetectionService_properties_typeProperties_subscriptionId')]",
+					"resourceGroup": "rg-azureml",
+					"csName": "droneanalyticsanomaly",
+					"csKind": "AnomalyDetector",
+					"csLocation": "eastus",
+					"endPoint": "https://droneanalyticsanomaly.cognitiveservices.azure.com/",
+					"csKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault1",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "CognitiveServicesSecret"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('workspaceId'), '/linkedServices/AzureKeyVault1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AzureKeyVault1')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/AzureMLService1')]",
@@ -634,7 +688,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "84989c34-23ad-4346-b9ee-7c4dde87ed4b"
+						"spark.autotune.trackingId": "ca32dd7e-1cb1-465a-a08c-77f21c8ef407"
 					}
 				},
 				"metadata": {
@@ -659,13 +713,15 @@
 						"sparkVersion": "2.4",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"import azureml.core\n",
 							"\n",
@@ -679,6 +735,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"linkedService_name = \"AzureMLService1\"\n",
 							"experiment_name = \"drone-analytics-fleet_data-20221025052736\"\n",
@@ -691,6 +748,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"df  = spark.read \\\n",
 							"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\n",
@@ -713,6 +771,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"automl_config = AutoMLConfig(spark_context = sc,\n",
 							"                             task = \"classification\",\n",
@@ -729,6 +788,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"run = experiment.submit(automl_config)"
 						],
@@ -737,6 +797,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 						],
@@ -745,6 +806,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"run.wait_for_completion()\n",
 							"\n",
@@ -911,6 +973,354 @@
 						],
 						"outputs": [],
 						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Classifier')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkdronetl24",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "ddc7d0dc-38a7-41ad-a35b-496a5b9f55ec"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl24",
+						"name": "sparkdronetl24",
+						"type": "Spark",
+						"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl24",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "2.4",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"import azureml.core\n",
+							"\n",
+							"from azureml.core import Experiment, Workspace, Dataset, Datastore\n",
+							"from azureml.train.automl import AutoMLConfig\n",
+							"from notebookutils import mssparkutils\n",
+							"from azureml.data.dataset_factory import TabularDatasetFactory"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"linkedService_name = \"AzureMLService1\"\n",
+							"experiment_name = \"drone-analytics-fleet_data-20221026113234\"\n",
+							"\n",
+							"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
+							"experiment = Experiment(ws, experiment_name)"
+						],
+						"outputs": [],
+						"execution_count": 9
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
+							"\n",
+							"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
+							"\n",
+							"datastore = Datastore.get_default(ws)\n",
+							"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
+						],
+						"outputs": [],
+						"execution_count": 10
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"automl_config = AutoMLConfig(spark_context = sc,\n",
+							"                             task = \"classification\",\n",
+							"                             training_data = dataset,\n",
+							"                             label_column_name = \"DeviceState\",\n",
+							"                             primary_metric = \"accuracy\",\n",
+							"                             experiment_timeout_hours = 1,\n",
+							"                             max_concurrent_iterations = 2,\n",
+							"                             enable_onnx_compatible_models = False)"
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"run = experiment.submit(automl_config)"
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"run.wait_for_completion()\n",
+							"\n",
+							"import mlflow\n",
+							"\n",
+							"# Get best model from automl run\n",
+							"best_run, non_onnx_model = run.get_output()\n",
+							"\n",
+							"artifact_path = experiment_name + \"_artifact\"\n",
+							"\n",
+							"mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())\n",
+							"mlflow.set_experiment(experiment_name)\n",
+							"\n",
+							"with mlflow.start_run() as run:\n",
+							"    # Save the model to the outputs directory for capture\n",
+							"    mlflow.sklearn.log_model(non_onnx_model, artifact_path)\n",
+							"\n",
+							"    # Register the model to AML model registry\n",
+							"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Test best model accuracy\r\n",
+							"validation_data_pd = validation_data.toPandas()\r\n",
+							"y_test = validation_data_pd.pop(\"DeviceState\").to_frame()\r\n",
+							"y_predict = onnx_model.predict(validation_data_pd)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from sklearn.metrics import mean_squared_error\r\n",
+							"from math import sqrt\r\n",
+							"\r\n",
+							"# Calculate root-mean-square error\r\n",
+							"y_actual = y_test.values.flatten().tolist()\r\n",
+							"rmse = sqrt(mean_squared_error(y_actual, y_predict))\r\n",
+							"\r\n",
+							"print(\"Root Mean Square Error:\")\r\n",
+							"print(rmse)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"import matplotlib.pyplot as plt\r\n",
+							"import numpy as np\r\n",
+							"from sklearn.metrics import mean_squared_error, r2_score\r\n",
+							"\r\n",
+							"# Calculate the R2 score by using the predicted and actual fare prices\r\n",
+							"y_test_actual = y_test[\"DeviceState\"]\r\n",
+							"r2 = r2_score(y_test_actual, y_predict)\r\n",
+							"\r\n",
+							"# Plot the actual versus predicted fare amount values\r\n",
+							"plt.style.use('ggplot')\r\n",
+							"plt.figure(figsize=(10, 7))\r\n",
+							"plt.scatter(y_test_actual,y_predict)\r\n",
+							"plt.plot([np.min(y_test_actual), np.max(y_test_actual)], [np.min(y_test_actual), np.max(y_test_actual)], color='lightblue')\r\n",
+							"plt.xlabel(\"Actual DeviceState\")\r\n",
+							"plt.ylabel(\"Predicted DeviceState\")\r\n",
+							"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
+							"plt.show()\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"description = 'My automated ML model'\r\n",
+							"model_path='outputs/model.pkl'\r\n",
+							"model = best_run.register_model(model_name = 'DeviceTelemetry', model_path = model_path, description = description)\r\n",
+							"print(model.name, model.version)"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Cognitive services example')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkdronetl24",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "c8cae066-2c97-45a9-aa1a-1cd0b500445e"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/9afda4c7-fb2d-4fd7-a1de-02965164af8c/resourceGroups/rg-AzureSynapse/providers/Microsoft.Synapse/workspaces/drone-analytics/bigDataPools/sparkdronetl24",
+						"name": "sparkdronetl24",
+						"type": "Spark",
+						"endpoint": "https://drone-analytics.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkdronetl24",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "2.4",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"from mmlspark.cognitive import *\n",
+							"from notebookutils import mssparkutils\n",
+							"from pyspark.sql.functions import col\n",
+							"from pyspark.sql.types import DoubleType\n",
+							"\n",
+							"\n",
+							"# Load the data into a Spark DataFrame\n",
+							"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\").withColumn(\"CoreTemp\", col(\"CoreTemp\").cast(DoubleType()))\n",
+							"\n",
+							"anomalyDetector = (SimpleDetectAnomalies()\n",
+							"    .setLinkedService(\"AnomalyDetectionService\")\n",
+							"    .setOutputCol(\"output\")\n",
+							"    .setErrorCol(\"error\")\n",
+							"    .setGranularity(\"daily\")\n",
+							"    .setTimestampCol(\"LocalDate\")\n",
+							"    .setValueCol(\"CoreTemp\")\n",
+							"    .setGroupbyCol(\"CoreStatus\"))\n",
+							"\n",
+							"results = anomalyDetector.transform(df)\n",
+							"\n",
+							"# Show the results\n",
+							"display(results.select(\"LocalDate\", \"CoreTemp\", \"CoreStatus\", \"output.*\", \"error\").limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 3
 					}
 				]
 			},

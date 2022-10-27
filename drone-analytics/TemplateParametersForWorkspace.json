@@ -8,6 +8,12 @@
 		"drone-analytics-WorkspaceDefaultSqlServer_connectionString": {
 			"value": ""
 		},
+		"AnomalyDetectionService_properties_typeProperties_subscriptionId": {
+			"value": "9afda4c7-fb2d-4fd7-a1de-02965164af8c"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "https://dronetelemetryvault.vault.azure.net/"
+		},
 		"AzureMLService1_properties_typeProperties_subscriptionId": {
 			"value": "9afda4c7-fb2d-4fd7-a1de-02965164af8c"
 		},
