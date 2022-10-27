@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ccee8154-c845-4681-b403-bd08836ddcf9"
+				"spark.autotune.trackingId": "c5e059ac-f729-4d88-8565-cee2f7e7b262"
 			}
 		},
 		"metadata": {
@@ -69,19 +69,21 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
 					"\n",
+					"# Create new DeviceState column with indexes\n",
+					"\n",
 					"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -95,21 +97,21 @@
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False)"
 				],
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config)"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": null
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -133,7 +135,25 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
 				],
-				"execution_count": null
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"validation_data = validation_data.withColumn('LocalDate', validation_data['LocalDateTime'])"
+				],
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -152,9 +172,27 @@
 					"# Test best model accuracy\r\n",
 					"validation_data_pd = validation_data.toPandas()\r\n",
 					"y_test = validation_data_pd.pop(\"DeviceState\").to_frame()\r\n",
-					"y_predict = onnx_model.predict(validation_data_pd)"
+					"y_predict = non_onnx_model.predict(validation_data_pd)"
 				],
-				"execution_count": null
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"type(y_predict)"
+				],
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +218,7 @@
 					"print(\"Root Mean Square Error:\")\r\n",
 					"print(rmse)"
 				],
-				"execution_count": null
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +253,7 @@
 					"plt.show()\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
