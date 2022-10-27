@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3932842b-8b39-441b-9b93-75dd6190c037"
+				"spark.autotune.trackingId": "922af73c-b85c-4979-8945-55755cdaac39"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 13
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 14
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -102,26 +102,32 @@
 					"# Downsampling data for development\n",
 					"df = df.sample(True, 0.001, seed=1234)\n",
 					"\n",
-					"#df=df.drop('LocalDate')\n",
+					"df=df.drop('LocalDate')\n",
 					"\n",
-					"df = df.select(\n",
-					"      'DeviceState', 'DeviceStateID',\n",
-					"      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
-					"      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
-					"      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
-					"      'CoreTemp','BatteryTemp','CoreStatus','CoreStatusID','MemoryAvailable','BatteryLevel',\n",
-					"      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
-					"      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
-					"      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
-					"      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
-					"      )\n",
+					"#df = df.select(\n",
+					"#      'DeviceState', 'DeviceStateID',\n",
+					"#      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
+					"#      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
+					"#      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
+					"#      'CoreTemp','BatteryTemp','CoreStatus','CoreStatusID','MemoryAvailable','BatteryLevel',\n",
+					"#      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
+					"#      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
+					"#      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
+					"#      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
+					"#      )\n",
+					"\n",
+					"#df = df.select(\n",
+					"#      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
+					"#      'CoreTemp','BatteryTemp','CoreStatus','CoreStatusID',\n",
+					"#      'Altitude','Speed','PayloadWeight','AccumulatedDistance'\n",
+					"#      )\n",
 					"\n",
 					"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 15
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -145,21 +151,21 @@
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 16
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config)"
 				],
-				"execution_count": 17
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": 18
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -183,7 +189,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221027091611-Best\")"
 				],
-				"execution_count": 19
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -204,7 +210,7 @@
 					"for name, value in test_run_metrics.items():\r\n",
 					"    print(f\"{name}: {value}\")"
 				],
-				"execution_count": 32
+				"execution_count": 56
 			}
 		]
 	}
