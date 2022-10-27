@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "922af73c-b85c-4979-8945-55755cdaac39"
+				"spark.autotune.trackingId": "c0a75c7d-ddf3-4a97-9b72-48aac5c639b8"
 			}
 		},
 		"metadata": {
@@ -122,12 +122,31 @@
 					"#      'Altitude','Speed','PayloadWeight','AccumulatedDistance'\n",
 					"#      )\n",
 					"\n",
-					"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
+					"training_data, validation_data = df.randomSplit([0.65,0.35], 1234)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
 				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"display(df, summary=True)"
+				],
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
