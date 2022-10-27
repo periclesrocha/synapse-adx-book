@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "357b9286-9933-4edf-8912-7e5ef4e89f1c"
+				"spark.autotune.trackingId": "6a8ec275-015f-4d61-9213-e88e1788a50b"
 			}
 		},
 		"metadata": {
@@ -56,10 +56,9 @@
 					"from azureml.core import Experiment, Workspace, Dataset, Datastore\n",
 					"from azureml.train.automl import AutoMLConfig\n",
 					"from notebookutils import mssparkutils\n",
-					"from azureml.data.dataset_factory import TabularDatasetFactory\n",
-					""
+					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 13
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -70,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 14
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -98,14 +97,29 @@
 					"      .otherwise(-1))\n",
 					"#df.show()\n",
 					"\n",
-					"df=df.drop('LocalDate')\n",
+					"# Downsampling data for development\n",
+					"df = df.sample(True, 0.001, seed=1234)\n",
+					"\n",
+					"#df=df.drop('LocalDate')\n",
+					"\n",
+					"df = df.select(\n",
+					"      'DeviceState', 'DeviceStateID',\n",
+					"      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
+					"      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
+					"      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
+					"      'CoreTemp','BatteryTemp','CoreStatus','MemoryAvailable','BatteryLevel',\n",
+					"      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
+					"      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
+					"      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
+					"      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
+					"      )\n",
 					"\n",
 					"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 15
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -129,30 +143,42 @@
 			{
 				"cell_type": "code",
 				"source": [
+					"import logging\n",
+					"\n",
+					"automl_settings = {\n",
+					"    \"iteration_timeout_minutes\": 10,\n",
+					"    \"experiment_timeout_minutes\": 15,\n",
+					"    \"enable_early_stopping\": True,\n",
+					"    \"featurization\": 'auto',\n",
+					"    \"verbosity\": logging.INFO,\n",
+					"    \"n_cross_validations\": 2}\n",
+					"\n",
 					"automl_config = AutoMLConfig(spark_context = sc,\n",
-					"                             task = \"classification\",\n",
+					"                             #task = \"classification\",  # used for classification\n",
+					"                             task = 'regression',         # used to predict a value\n",
 					"                             training_data = dataset,\n",
-					"                             label_column_name = \"DeviceStateID\",\n",
-					"                             primary_metric = \"accuracy\",\n",
-					"                             experiment_timeout_hours = 1,\n",
+					"                             #label_column_name = \"DeviceStateID\",\n",
+					"                             label_column_name = 'CoreTemp',\n",
+					"                             primary_metric = 'r2_score',\n",
+					"                             #experiment_timeout_hours = 1,\n",
 					"                             max_concurrent_iterations = 2,\n",
-					"                             enable_onnx_compatible_models = False)"
+					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 17
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config)"
 				],
-				"execution_count": 18
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": 19
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -176,7 +202,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
 				],
-				"execution_count": 20
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +241,7 @@
 					"y_test = validation_data_pd.pop(\"DeviceStateID\").to_frame()\r\n",
 					"y_predict = non_onnx_model.predict(validation_data_pd)"
 				],
-				"execution_count": 23
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -259,7 +285,7 @@
 					"print(\"Root Mean Square Error:\")\r\n",
 					"print(rmse)"
 				],
-				"execution_count": 25
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -294,7 +320,7 @@
 					"plt.show()\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -316,6 +342,46 @@
 					"print(model.name, model.version)"
 				],
 				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Measuring accuracy \r\n",
+					"\r\n",
+					"from pyspark.ml.classification import LogisticRegression\r\n",
+					"\r\n",
+					"lr = LogisticRegression(featuresCol='features',labelCol='label')\r\n",
+					"lrPredictions = best_run.transform(test)\r\n",
+					"\r\n",
+					"from pyspark.ml.evaluation import MulticlassClassificationEvaluator\r\n",
+					"from pyspark.ml.evaluation import BinaryClassificationEvaluator\r\n",
+					"\r\n",
+					"eval_accuracy = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"accuracy\")\r\n",
+					"eval_precision = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"precisionByLabel\")\r\n",
+					"eval_recall = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"recallByLabel\")\r\n",
+					"eval_f1 = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"f1\")\r\n",
+					"\r\n",
+					"eval_auc = BinaryClassificationEvaluator(labelCol=\"label\", rawPredictionCol=\"prediction\")\r\n",
+					"\r\n",
+					"accuracy = eval_accuracy.evaluate(lrPredictions)\r\n",
+					"precision = eval_precision.evaluate(lrPredictions)\r\n",
+					"recall = eval_recall.evaluate(lrPredictions)\r\n",
+					"f1score = eval_f1.evaluate(lrPredictions)\r\n",
+					"\r\n",
+					"auc = eval_accuracy.evaluate(lrPredictions)"
+				],
+				"execution_count": 42
 			}
 		]
 	}
