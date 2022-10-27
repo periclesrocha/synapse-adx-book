@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7200cc56-a80a-4803-8fe3-6571e5728c90"
+				"spark.autotune.trackingId": "a0ac9cf8-0bbb-4db2-b108-96b919df28a9"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 58
+				"execution_count": 76
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 59
+				"execution_count": 77
 			},
 			{
 				"cell_type": "code",
@@ -100,7 +100,7 @@
 					"      .otherwise(0))\n",
 					"\n",
 					"# Downsampling data for development\n",
-					"df = df.sample(True, 0.001, seed=1234)\n",
+					"df = df.sample(True, 0.1, seed=1234)\n",
 					"\n",
 					"df=df.drop('LocalDate')\n",
 					"\n",
@@ -122,12 +122,12 @@
 					"#      'Altitude','Speed','PayloadWeight','AccumulatedDistance'\n",
 					"#      )\n",
 					"\n",
-					"training_data, validation_data = df.randomSplit([0.65,0.35], 1234)\n",
+					"training_data, validation_data = df.randomSplit([0.65,0.35], seed=1234)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 60
+				"execution_count": 78
 			},
 			{
 				"cell_type": "code",
@@ -144,9 +144,11 @@
 					"collapsed": false
 				},
 				"source": [
-					"display(df, summary=True)"
+					"display(df)#, summary=True)\r\n",
+					"\r\n",
+					""
 				],
-				"execution_count": 61
+				"execution_count": 87
 			},
 			{
 				"cell_type": "code",
@@ -164,27 +166,27 @@
 					"automl_config = AutoMLConfig(spark_context = sc,\n",
 					"                             task = \"classification\",  # used for classification\n",
 					"                             training_data = dataset,\n",
-					"                             label_column_name = 'CoreStatusID',\n",
+					"                             label_column_name = 'DeviceStateID',\n",
 					"                             primary_metric = \"accuracy\",\n",
 					"                             #experiment_timeout_hours = 1,\n",
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 62
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config)"
 				],
-				"execution_count": 63
+				"execution_count": 81
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": 64
+				"execution_count": 82
 			},
 			{
 				"cell_type": "code",
@@ -208,7 +210,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221027091611-Best\")"
 				],
-				"execution_count": 65
+				"execution_count": 83
 			},
 			{
 				"cell_type": "code",
@@ -229,7 +231,7 @@
 					"for name, value in test_run_metrics.items():\r\n",
 					"    print(f\"{name}: {value}\")"
 				],
-				"execution_count": null
+				"execution_count": 84
 			}
 		]
 	}
