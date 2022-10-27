@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d584812a-30a2-4fe0-a150-38d957e0b111"
+				"spark.autotune.trackingId": "36913c6f-b6ff-46a7-8625-f49eb2a0a3c2"
 			}
 		},
 		"metadata": {
@@ -152,7 +152,7 @@
 				"source": [
 					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": null
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -176,7 +176,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
 				],
-				"execution_count": null
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -212,7 +212,7 @@
 				"source": [
 					"# Test best model accuracy\r\n",
 					"validation_data_pd = validation_data.toPandas()\r\n",
-					"y_test = validation_data_pd.pop(\"DeviceState\").to_frame()\r\n",
+					"y_test = validation_data_pd.pop(\"DeviceStateID\").to_frame()\r\n",
 					"y_predict = non_onnx_model.predict(validation_data_pd)"
 				],
 				"execution_count": null
