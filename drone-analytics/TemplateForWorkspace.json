@@ -999,7 +999,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ddc7d0dc-38a7-41ad-a35b-496a5b9f55ec"
+						"spark.autotune.trackingId": "7ae23691-7270-4ab6-9292-4aa30bab869a"
 					}
 				},
 				"metadata": {
@@ -1042,7 +1042,7 @@
 							"from azureml.data.dataset_factory import TabularDatasetFactory"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -1055,7 +1055,7 @@
 							"experiment = Experiment(ws, experiment_name)"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -1063,13 +1063,15 @@
 						"source": [
 							"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
 							"\n",
+							"# Create new DeviceState column with indexes\n",
+							"\n",
 							"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
 							"\n",
 							"datastore = Datastore.get_default(ws)\n",
 							"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 3
 					},
 					{
 						"cell_type": "code",
@@ -1085,7 +1087,7 @@
 							"                             enable_onnx_compatible_models = False)"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -1094,7 +1096,7 @@
 							"run = experiment.submit(automl_config)"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -1103,7 +1105,7 @@
 							"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -1129,7 +1131,26 @@
 							"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 7
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"validation_data = validation_data.withColumn('LocalDate', validation_data['LocalDateTime'])"
+						],
+						"outputs": [],
+						"execution_count": 41
 					},
 					{
 						"cell_type": "code",
@@ -1148,10 +1169,29 @@
 							"# Test best model accuracy\r\n",
 							"validation_data_pd = validation_data.toPandas()\r\n",
 							"y_test = validation_data_pd.pop(\"DeviceState\").to_frame()\r\n",
-							"y_predict = onnx_model.predict(validation_data_pd)"
+							"y_predict = non_onnx_model.predict(validation_data_pd)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 42
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"type(y_predict)"
+						],
+						"outputs": [],
+						"execution_count": 60
 					},
 					{
 						"cell_type": "code",
@@ -1178,7 +1218,7 @@
 							"print(rmse)"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 43
 					},
 					{
 						"cell_type": "code",
@@ -1214,7 +1254,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 46
 					},
 					{
 						"cell_type": "code",
