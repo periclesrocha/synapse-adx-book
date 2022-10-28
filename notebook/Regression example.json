@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0a32434a-5f8d-48c4-b7fa-921be4f7be02"
+				"spark.autotune.trackingId": "8d808abe-c59e-44db-a171-607cf0860769"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 43
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 44
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -98,28 +98,28 @@
 					"#df.show()\n",
 					"\n",
 					"# Downsampling data for development\n",
-					"df = df.sample(True, 0.001, seed=1234)\n",
+					"df = df.sample(True, 0.01, seed=1234)\n",
 					"\n",
-					"#df=df.drop('LocalDate')\n",
+					"df=df.drop('LocalDate')\n",
 					"\n",
-					"df = df.select(\n",
-					"      'DeviceState', 'DeviceStateID',\n",
-					"      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
-					"      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
-					"      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
-					"      'CoreTemp','BatteryTemp','CoreStatus','MemoryAvailable','BatteryLevel',\n",
-					"      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
-					"      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
-					"      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
-					"      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
-					"      )\n",
+					"#df = df.select(\n",
+					"#      'DeviceState', 'DeviceStateID',\n",
+					"#      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
+					"#      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
+					"#      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
+					"#      'CoreTemp','BatteryTemp','CoreStatus','MemoryAvailable','BatteryLevel',\n",
+					"#      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
+					"#      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
+					"#      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
+					"#      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
+					"#      )\n",
 					"\n",
-					"training_data, validation_data = df.randomSplit([0.8,0.2], 223)\n",
+					"training_data, validation_data = df.randomSplit([0.8,0.2], seed=1234)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 45
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -138,7 +138,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": 56
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -164,21 +164,21 @@
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 48
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"run = experiment.submit(automl_config)"
+					"run = experiment.submit(automl_config, show_output=True)"
 				],
-				"execution_count": 49
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
+					"#displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": 50
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -188,7 +188,7 @@
 					"import mlflow\n",
 					"\n",
 					"# Get best model from automl run\n",
-					"best_run, non_onnx_model = run.get_output()\n",
+					"best_run, non_onnx_model = run.get_output() #Change this name to fitted_model\n",
 					"\n",
 					"artifact_path = experiment_name + \"_artifact\"\n",
 					"\n",
@@ -200,9 +200,12 @@
 					"    mlflow.sklearn.log_model(non_onnx_model, artifact_path)\n",
 					"\n",
 					"    # Register the model to AML model registry\n",
-					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
+					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")\n",
+					"\n",
+					"print(best_run)\n",
+					"print(non_onnx_model)"
 				],
-				"execution_count": 51
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -215,34 +218,21 @@
 						"transient": {
 							"deleting": false
 						}
-					}
-				},
-				"source": [
-					"#validation_data = validation_data.withColumn('LocalDate', validation_data['LocalDateTime'])"
-				],
-				"execution_count": 21
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
 					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
+					"collapsed": false
 				},
 				"source": [
+					"import pandas as pd\r\n",
 					"# Test best model accuracy\r\n",
 					"validation_data_pd = validation_data.toPandas()\r\n",
-					"#y_test = validation_data_pd.pop(\"DeviceStateID\").to_frame()\r\n",
 					"y_test = validation_data_pd.pop('CoreTemp').to_frame()\r\n",
-					"y_predict = non_onnx_model.predict(validation_data_pd)"
+					"y_predict = non_onnx_model.predict(validation_data_pd)\r\n",
+					"\r\n",
+					"df_compare = y_test\r\n",
+					"df_compare['Predicted'] = y_predict\r\n",
+					"display(df_compare)"
 				],
-				"execution_count": 52
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -268,7 +258,40 @@
 					"print(\"Root Mean Square Error:\")\r\n",
 					"print(rmse)"
 				],
-				"execution_count": 53
+				"execution_count": 43
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sum_actuals = sum_errors = 0\r\n",
+					"\r\n",
+					"for actual_val, predict_val in zip(y_actual, y_predict):\r\n",
+					"    abs_error = actual_val - predict_val\r\n",
+					"    if abs_error < 0:\r\n",
+					"        abs_error = abs_error * -1\r\n",
+					"\r\n",
+					"    sum_errors = sum_errors + abs_error\r\n",
+					"    sum_actuals = sum_actuals + actual_val\r\n",
+					"\r\n",
+					"mean_abs_percent_error = sum_errors / sum_actuals\r\n",
+					"print(\"Model MAPE:\")\r\n",
+					"print(mean_abs_percent_error)\r\n",
+					"print()\r\n",
+					"print(\"Model Accuracy:\")\r\n",
+					"print(1 - mean_abs_percent_error)"
+				],
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -301,10 +324,9 @@
 					"plt.xlabel(\"Actual DeviceState\")\r\n",
 					"plt.ylabel(\"Predicted DeviceState\")\r\n",
 					"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
-					"plt.show()\r\n",
-					""
+					"plt.show()"
 				],
-				"execution_count": 55
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -325,7 +347,7 @@
 					"model = best_run.register_model(model_name = 'DeviceTelemetry', model_path = model_path, description = description)\r\n",
 					"print(model.name, model.version)"
 				],
-				"execution_count": 28
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -341,31 +363,9 @@
 					}
 				},
 				"source": [
-					"# Measuring accuracy \r\n",
-					"\r\n",
-					"from pyspark.ml.classification import LogisticRegression\r\n",
-					"\r\n",
-					"lr = LogisticRegression(featuresCol='features',labelCol='label')\r\n",
-					"lrPredictions = best_run.transform(test)\r\n",
-					"\r\n",
-					"from pyspark.ml.evaluation import MulticlassClassificationEvaluator\r\n",
-					"from pyspark.ml.evaluation import BinaryClassificationEvaluator\r\n",
-					"\r\n",
-					"eval_accuracy = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"accuracy\")\r\n",
-					"eval_precision = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"precisionByLabel\")\r\n",
-					"eval_recall = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"recallByLabel\")\r\n",
-					"eval_f1 = MulticlassClassificationEvaluator(labelCol=\"label\", predictionCol=\"prediction\", metricName=\"f1\")\r\n",
-					"\r\n",
-					"eval_auc = BinaryClassificationEvaluator(labelCol=\"label\", rawPredictionCol=\"prediction\")\r\n",
-					"\r\n",
-					"accuracy = eval_accuracy.evaluate(lrPredictions)\r\n",
-					"precision = eval_precision.evaluate(lrPredictions)\r\n",
-					"recall = eval_recall.evaluate(lrPredictions)\r\n",
-					"f1score = eval_f1.evaluate(lrPredictions)\r\n",
-					"\r\n",
-					"auc = eval_accuracy.evaluate(lrPredictions)"
+					""
 				],
-				"execution_count": 42
+				"execution_count": null
 			}
 		]
 	}
