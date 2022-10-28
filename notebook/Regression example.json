@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "8d808abe-c59e-44db-a171-607cf0860769"
+				"spark.autotune.trackingId": "8b4b00da-121e-4783-85a3-a929ddd1c6cc"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 5
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -69,7 +69,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 6
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -102,24 +102,24 @@
 					"\n",
 					"df=df.drop('LocalDate')\n",
 					"\n",
-					"#df = df.select(\n",
-					"#      'DeviceState', 'DeviceStateID',\n",
-					"#      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
-					"#      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
-					"#      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
-					"#      'CoreTemp','BatteryTemp','CoreStatus','MemoryAvailable','BatteryLevel',\n",
-					"#      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
-					"#      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
-					"#      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
-					"#      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
-					"#      )\n",
+					"df = df.select(\n",
+					"      'DeviceState', 'DeviceStateID',\n",
+					"      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
+					"      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
+					"      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
+					"      'CoreTemp','BatteryTemp','CoreStatus','MemoryAvailable','BatteryLevel',\n",
+					"      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
+					"      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
+					"      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
+					"      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
+					"      )\n",
 					"\n",
 					"training_data, validation_data = df.randomSplit([0.8,0.2], seed=1234)\n",
 					"\n",
 					"datastore = Datastore.get_default(ws)\n",
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 7
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -138,7 +138,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": 8
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -164,21 +164,21 @@
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 9
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config, show_output=True)"
 				],
-				"execution_count": 10
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"#displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
 				],
-				"execution_count": 11
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -205,7 +205,7 @@
 					"print(best_run)\n",
 					"print(non_onnx_model)"
 				],
-				"execution_count": 12
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -232,7 +232,25 @@
 					"df_compare['Predicted'] = y_predict\r\n",
 					"display(df_compare)"
 				],
-				"execution_count": 42
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"len(y_predict)"
+				],
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -253,12 +271,12 @@
 					"\r\n",
 					"# Calculate root-mean-square error\r\n",
 					"y_actual = y_test.values.flatten().tolist()\r\n",
-					"rmse = sqrt(mean_squared_error(y_actual, y_predict))\r\n",
+					"rmse = sqrt(mean_squared_error(y_actual[:615], y_predict))\r\n",
 					"\r\n",
 					"print(\"Root Mean Square Error:\")\r\n",
 					"print(rmse)"
 				],
-				"execution_count": 43
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -291,7 +309,7 @@
 					"print(\"Model Accuracy:\")\r\n",
 					"print(1 - mean_abs_percent_error)"
 				],
-				"execution_count": 44
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -326,7 +344,7 @@
 					"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
 					"plt.show()"
 				],
-				"execution_count": 45
+				"execution_count": 62
 			},
 			{
 				"cell_type": "code",
@@ -347,7 +365,7 @@
 					"model = best_run.register_model(model_name = 'DeviceTelemetry', model_path = model_path, description = description)\r\n",
 					"print(model.name, model.version)"
 				],
-				"execution_count": null
+				"execution_count": 63
 			},
 			{
 				"cell_type": "code",
