@@ -5,7 +5,7 @@
 			"name": "Experiments"
 		},
 		"content": {
-			"query": "",
+			"query": "let min_peak_t=datetime(2016-08-23 15:00);\nlet max_peak_t=datetime(2016-08-23 15:02);\ndemo_clustering1\n| where PreciseTimeStamp between(min_peak_t..max_peak_t)\n| evaluate autocluster()",
 			"metadata": {
 				"language": "kql"
 			}
