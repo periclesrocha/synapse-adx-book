@@ -1,6 +1,9 @@
 {
 	"name": "Clustering tests",
 	"properties": {
+		"folder": {
+			"name": "Experiments"
+		},
 		"content": {
 			"query": "",
 			"metadata": {
