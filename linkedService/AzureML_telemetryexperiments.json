@@ -1,0 +1,17 @@
+{
+	"name": "AzureML_telemetryexperiments",
+	"properties": {
+		"annotations": [],
+		"type": "AzureMLService",
+		"typeProperties": {
+			"subscriptionId": "9afda4c7-fb2d-4fd7-a1de-02965164af8c",
+			"resourceGroupName": "rg-AzureML",
+			"mlWorkspaceName": "telemetry_experiments",
+			"authentication": "MSI"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
