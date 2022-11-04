@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4289e494-6619-4f91-893a-5a6e37e7b24c"
+				"spark.autotune.trackingId": "4f4a091d-9773-448c-b11e-3ed02386d005"
 			}
 		},
 		"metadata": {
@@ -58,7 +58,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -69,13 +69,22 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 47
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
 					"\n",
+					"df  = spark.read \\\n",
+					"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\n",
+					"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\n",
+					"    .option(\"kustoCluster\", \"https://droneanalyticsadx.drone-analytics.kusto.azuresynapse.net\") \\\n",
+					"    .option(\"kustoDatabase\", \"drone-telemetry\") \\\n",
+					"    .option(\"kustoQuery\", \"['fleet data']\") \\\n",
+					"    .load()\n",
+					"\n",
+					"display(df)\n",
 					"# Create new DeviceState column with indexes\n",
 					"# Cruise\n",
 					"# Delivery\n",
