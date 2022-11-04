@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4f4a091d-9773-448c-b11e-3ed02386d005"
+				"spark.autotune.trackingId": "897ef9cd-50d9-45cb-978d-c0d6011a6103"
 			}
 		},
 		"metadata": {
@@ -74,8 +74,9 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"df = spark.sql(\"SELECT * FROM drone_telemetry.fleet_data\")\n",
-					"\n",
+					"# Changing the query to the Data Explorer pool table\n",
+					"# Make sure you change this code to use YOUR Data Explorer pool, \n",
+					"# database, and table. \n",
 					"df  = spark.read \\\n",
 					"    .format(\"com.microsoft.kusto.spark.synapse.datasource\") \\\n",
 					"    .option(\"spark.synapse.linkedService\", \"kustoPool\") \\\n",
@@ -84,51 +85,34 @@
 					"    .option(\"kustoQuery\", \"['fleet data']\") \\\n",
 					"    .load()\n",
 					"\n",
-					"display(df)\n",
-					"# Create new DeviceState column with indexes\n",
-					"# Cruise\n",
-					"# Delivery\n",
-					"# Descent\n",
-					"# DeviceError\n",
-					"# Off\n",
-					"# On\n",
-					"# TakeOff\n",
+					"# Downsampling data\n",
+					"df = df.sample(True, 0.01, seed=1234)\n",
 					"\n",
 					"from pyspark.sql.functions import *\n",
 					"\n",
-					"df = df.withColumn('DeviceStateID', when(df.DeviceState == 'Cruise',1) \\\n",
-					"      .when(df.DeviceState == 'Delivery',2) \\\n",
-					"      .when(df.DeviceState == 'Descent',3) \\\n",
-					"      .when(df.DeviceState == 'DeviceError',4) \\\n",
-					"      .when(df.DeviceState == 'Off',5) \\\n",
-					"      .when(df.DeviceState == 'On',6) \\\n",
-					"      .when(df.DeviceState == 'TakeOff',7) \\\n",
-					"      .otherwise(-1))\n",
-					"#df.show()\n",
-					"\n",
-					"# Downsampling data for development\n",
-					"df = df.sample(True, 0.01, seed=1234)\n",
-					"\n",
-					"df=df.drop('LocalDate')\n",
-					"\n",
+					"# Select specific columns\n",
 					"df = df.select(\n",
-					"      'DeviceState', 'DeviceStateID',\n",
+					"      'DeviceState', \n",
 					"      'Engine1Status','Engine2Status','Engine3Status','Engine4Status',\n",
 					"      'Engine1RPM','Engine2RPM','Engine3RPM','Engine4RPM',\n",
 					"      'Engine1Temp','Engine2Temp','Engine3Temp','Engine4Temp',\n",
 					"      'CoreTemp','BatteryTemp','CoreStatus','MemoryAvailable','BatteryLevel',\n",
-					"      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight','AccumulatedDistance',\n",
+					"      'Altitude','Speed','DistanceFromBase','RFSignal','PayloadWeight',\n",
 					"      date_format('LocalDateTime', 'hh').alias('HourOfDay'),\n",
 					"      dayofmonth('LocalDateTime').alias('DayOfMonth'),\n",
 					"      dayofweek('LocalDateTime').alias('DayOfWeek')\n",
 					"      )\n",
 					"\n",
+					"# Create the training and validation dataframes\n",
 					"training_data, validation_data = df.randomSplit([0.8,0.2], seed=1234)\n",
 					"\n",
+					"# Create a dataset from the training dataframe, \n",
+					"# using the default workspace data store\n",
 					"datastore = Datastore.get_default(ws)\n",
-					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, datastore, name = experiment_name + \"-dataset\")"
+					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, \n",
+					"      datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 48
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -147,7 +131,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": 49
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -163,31 +147,21 @@
 					"    \"n_cross_validations\": 2}\n",
 					"\n",
 					"automl_config = AutoMLConfig(spark_context = sc,\n",
-					"                             #task = \"classification\",  # used for classification\n",
-					"                             task = 'regression',         # used to predict a value\n",
+					"                             task = 'regression',\n",
 					"                             training_data = dataset,\n",
-					"                             #label_column_name = \"DeviceStateID\",\n",
 					"                             label_column_name = 'CoreTemp',\n",
 					"                             primary_metric = 'r2_score',\n",
-					"                             #experiment_timeout_hours = 1,\n",
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 50
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"run = experiment.submit(automl_config, show_output=True)"
 				],
-				"execution_count": 51
-			},
-			{
-				"cell_type": "code",
-				"source": [
-					"#displayHTML(\"<a href={} target='_blank'>Your experiment in Azure Machine Learning portal: {}</a>\".format(run.get_portal_url(), run.id))"
-				],
-				"execution_count": 52
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -197,7 +171,7 @@
 					"import mlflow\n",
 					"\n",
 					"# Get best model from automl run\n",
-					"best_run, non_onnx_model = run.get_output() #Change this name to fitted_model\n",
+					"best_run, fitted_model = run.get_output()\n",
 					"\n",
 					"artifact_path = experiment_name + \"_artifact\"\n",
 					"\n",
@@ -206,15 +180,12 @@
 					"\n",
 					"with mlflow.start_run() as run:\n",
 					"    # Save the model to the outputs directory for capture\n",
-					"    mlflow.sklearn.log_model(non_onnx_model, artifact_path)\n",
+					"    mlflow.sklearn.log_model(fitted_model, artifact_path)\n",
 					"\n",
 					"    # Register the model to AML model registry\n",
-					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")\n",
-					"\n",
-					"print(best_run)\n",
-					"print(non_onnx_model)"
+					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
 				],
-				"execution_count": 53
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -232,93 +203,22 @@
 				},
 				"source": [
 					"import pandas as pd\r\n",
-					"# Test best model accuracy\r\n",
-					"validation_data_pd = validation_data.toPandas()\r\n",
-					"y_test = validation_data_pd.pop('CoreTemp').to_frame()\r\n",
-					"y_predict = non_onnx_model.predict(validation_data_pd)\r\n",
 					"\r\n",
-					"df_compare = y_test\r\n",
+					"# Create a Pandas DataFrame from the validation set\r\n",
+					"validation_data_pd = validation_data.toPandas()\r\n",
+					"\r\n",
+					"# Create a new Pandas DataFrame with the REAL CoreTemp data\r\n",
+					"df_compare = validation_data_pd.pop('CoreTemp').to_frame()\r\n",
+					"\r\n",
+					"# Predict the CoreTemp column using the fitted model\r\n",
+					"y_predict = fitted_model.predict(validation_data_pd)\r\n",
+					"\r\n",
+					"# Add the predicted values to the new Pandas DataFrame\r\n",
+					"# for comparison \r\n",
 					"df_compare['Predicted'] = y_predict\r\n",
 					"display(df_compare)"
 				],
-				"execution_count": 54
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"len(y_predict)"
-				],
-				"execution_count": 59
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"from sklearn.metrics import mean_squared_error\r\n",
-					"from math import sqrt\r\n",
-					"\r\n",
-					"# Calculate root-mean-square error\r\n",
-					"y_actual = y_test.values.flatten().tolist()\r\n",
-					"rmse = sqrt(mean_squared_error(y_actual[:615], y_predict))\r\n",
-					"\r\n",
-					"print(\"Root Mean Square Error:\")\r\n",
-					"print(rmse)"
-				],
-				"execution_count": 60
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"sum_actuals = sum_errors = 0\r\n",
-					"\r\n",
-					"for actual_val, predict_val in zip(y_actual, y_predict):\r\n",
-					"    abs_error = actual_val - predict_val\r\n",
-					"    if abs_error < 0:\r\n",
-					"        abs_error = abs_error * -1\r\n",
-					"\r\n",
-					"    sum_errors = sum_errors + abs_error\r\n",
-					"    sum_actuals = sum_actuals + actual_val\r\n",
-					"\r\n",
-					"mean_abs_percent_error = sum_errors / sum_actuals\r\n",
-					"print(\"Model MAPE:\")\r\n",
-					"print(mean_abs_percent_error)\r\n",
-					"print()\r\n",
-					"print(\"Model Accuracy:\")\r\n",
-					"print(1 - mean_abs_percent_error)"
-				],
-				"execution_count": 61
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -338,22 +238,21 @@
 					"import numpy as np\r\n",
 					"from sklearn.metrics import mean_squared_error, r2_score\r\n",
 					"\r\n",
-					"# Calculate the R2 score by using the predicted and actual fare prices\r\n",
-					"#y_test_actual = y_test['DeviceStateID']\r\n",
+					"# Compute the R2 score by using the predicted and actual CoreTemp\r\n",
 					"y_test_actual = y_test['CoreTemp']\r\n",
 					"r2 = r2_score(y_test_actual, y_predict)\r\n",
 					"\r\n",
-					"# Plot the actual versus predicted fare amount values\r\n",
+					"# Plot the actual versus predicted CoreTemp values\r\n",
 					"plt.style.use('ggplot')\r\n",
 					"plt.figure(figsize=(10, 7))\r\n",
 					"plt.scatter(y_test_actual,y_predict)\r\n",
 					"plt.plot([np.min(y_test_actual), np.max(y_test_actual)], [np.min(y_test_actual), np.max(y_test_actual)], color='lightblue')\r\n",
-					"plt.xlabel(\"Actual DeviceState\")\r\n",
-					"plt.ylabel(\"Predicted DeviceState\")\r\n",
+					"plt.xlabel(\"Actual\")\r\n",
+					"plt.ylabel(\"Predicted\")\r\n",
 					"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
 					"plt.show()"
 				],
-				"execution_count": 62
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -374,25 +273,7 @@
 					"model = best_run.register_model(model_name = 'DeviceTelemetry', model_path = model_path, description = description)\r\n",
 					"print(model.name, model.version)"
 				],
-				"execution_count": 63
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
-				],
-				"execution_count": null
+				"execution_count": 16
 			}
 		]
 	}
