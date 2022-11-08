@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0b94c285-0d47-4858-99f0-48e671c584af"
+				"spark.autotune.trackingId": "cb3948b4-a0c8-49de-b04b-4af3ac084739"
 			}
 		},
 		"metadata": {
@@ -45,7 +45,8 @@
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -161,6 +162,19 @@
 					"      datastore, name = experiment_name + \"-dataset\")"
 				],
 				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Next, we will add a code cell to see the structure of our new Spark DataFrame and make sure everything looks good. "
+				]
 			},
 			{
 				"cell_type": "code",
