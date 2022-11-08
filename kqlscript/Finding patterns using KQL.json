@@ -1,0 +1,12 @@
+{
+	"name": "Finding patterns using KQL",
+	"properties": {
+		"content": {
+			"query": "let date_start=datetime(2021-11-01 00:00);\nlet date_end=datetime(2021-11-01 23:59);\n['fleet data']\n| where LocalDateTime between(date_start..date_end)\n| evaluate autocluster()\n",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
