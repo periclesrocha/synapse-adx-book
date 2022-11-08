@@ -1,6 +1,9 @@
 {
 	"name": "New test",
 	"properties": {
+		"folder": {
+			"name": "Tests"
+		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
@@ -17,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "6a1a848f-072a-4f17-b75e-814515f9a973"
+				"spark.autotune.trackingId": "bedbfe74-1e8b-412e-b5ef-70d9706953dd"
 			}
 		},
 		"metadata": {

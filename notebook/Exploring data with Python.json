@@ -1,6 +1,9 @@
 {
 	"name": "Exploring data with Python",
 	"properties": {
+		"folder": {
+			"name": "Chapter 6"
+		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
@@ -17,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "22812635-def6-437d-b720-0d0d60426c98"
+				"spark.autotune.trackingId": "affa607a-600a-4c00-b1f9-a6157a0b42f6"
 			}
 		},
 		"metadata": {
