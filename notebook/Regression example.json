@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9b895463-ac0e-4c5d-90f5-70c4cb1ffe7d"
+				"spark.autotune.trackingId": "fe9a202d-cf1f-4329-8212-34fc18f7c261"
 			}
 		},
 		"metadata": {
@@ -261,19 +261,6 @@
 					"run = experiment.submit(automl_config, show_output=True)"
 				],
 				"execution_count": 10
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
-				]
 			},
 			{
 				"cell_type": "markdown",
