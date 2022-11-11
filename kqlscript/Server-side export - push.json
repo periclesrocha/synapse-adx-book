@@ -1,0 +1,12 @@
+{
+	"name": "Server-side export - push",
+	"properties": {
+		"content": {
+			"query": "",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
