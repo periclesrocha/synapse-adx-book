@@ -1,0 +1,19 @@
+{
+	"name": "System Monitoring",
+	"properties": {
+		"folder": {
+			"name": "Chapter 9"
+		},
+		"content": {
+			"query": ".show capacity \n\n.alter cluster policy capacity ```\n{\n  \"IngestionCapacity\": {\n    \"ClusterMaximumConcurrentOperations\": 512\n  }\n}```\n\n.show commands-and-queries\n| where State == 'Failed'\n| order by StartedOn desc \n\n.cancel query 'Studio;7330d14b-f5de-46cb-acd9-6f30ffebf844' with (reason='Canceled by admin')\n\n.show table ['fleet data']\n\n.show journal\n\n.show database ['drone-telemetry'] journal\n\n.show ingestion failures\n\n.show operations\n\n.show operation 94758363-5a49-4ce9-8a14-0fe3231eeb07 details",
+			"metadata": {
+				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
