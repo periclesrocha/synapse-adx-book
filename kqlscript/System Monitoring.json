@@ -5,7 +5,7 @@
 			"name": "Chapter 9"
 		},
 		"content": {
-			"query": ".show capacity \n\n.alter cluster policy capacity ```\n{\n  \"IngestionCapacity\": {\n    \"ClusterMaximumConcurrentOperations\": 512\n  }\n}```\n\n.show commands-and-queries\n| where State == 'Failed'\n| order by StartedOn desc \n\n.cancel query 'Studio;7330d14b-f5de-46cb-acd9-6f30ffebf844' with (reason='Canceled by admin')\n\n.show table ['fleet data']\n\n.show journal\n\n.show database ['drone-telemetry'] journal\n\n.show ingestion failures\n\n.show operations\n\n.show operation 94758363-5a49-4ce9-8a14-0fe3231eeb07 details",
+			"query": ".show capacity \n\n.alter cluster policy capacity ```\n{\n  \"IngestionCapacity\": {\n    \"ClusterMaximumConcurrentOperations\": 512\n  }\n}```\n\n.show commands-and-queries\n//| where State == 'Failed'\n| order by StartedOn desc \n\n.cancel query 'Studio;7330d14b-f5de-46cb-acd9-6f30ffebf844' with (reason='Canceled by admin')\n\n.show commands-and-queries \n| where StartedOn > ago(24h)\n| order by TotalCpu desc\n| project User, Application, TotalCpu, State, Text\n\n.show table ['fleet data'] details\n| project DatabaseName, TableName, TotalOriginalSize, TotalRowCount, AuthorizedPrincipals\n\n.show journal \n| where EntityName == 'fleet data'\n| order by EventTimestamp desc\n| project EventTimestamp, Event, OriginalEntityState, ChangeCommand, User\n\n.show database ['drone-telemetry'] journal\n\n.show ingestion failures\n\n.show operations\n\n.show operation 89a0f9cf-afe3-4905-8ac9-0797a29f99f1 details",
 			"metadata": {
 				"language": "kql"
 			},
