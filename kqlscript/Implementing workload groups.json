@@ -1,6 +1,9 @@
 {
 	"name": "Implementing workload groups",
 	"properties": {
+		"folder": {
+			"name": "Chapter 10"
+		},
 		"content": {
 			"query": "// 1 - Creating a new workload group\n\n.create-or-alter workload_group EngineeringDepartmentWG ```\n{\n  \"MaxResultRecords\": {\n    \"IsRelaxable\": false,\n    \"Value\": 1048576\n  },\n  \"MaxResultBytes\": {\n    \"IsRelaxable\": true,\n    \"Value\": 64000000\n  },\n  \"MaxExecutiontime\": {\n    \"IsRelaxable\": false,\n    \"Value\": \"00:02:30\"\n  }\n}```",
 			"metadata": {
