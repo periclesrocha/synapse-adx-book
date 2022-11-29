@@ -5,9 +5,13 @@
 			"name": "Chapter 10"
 		},
 		"content": {
-			"query": "// 1 - Creating a new workload group\n\n.create-or-alter workload_group EngineeringDepartmentWG ```\n{\n  \"MaxResultRecords\": {\n    \"IsRelaxable\": false,\n    \"Value\": 1048576\n  },\n  \"MaxResultBytes\": {\n    \"IsRelaxable\": true,\n    \"Value\": 64000000\n  },\n  \"MaxExecutiontime\": {\n    \"IsRelaxable\": false,\n    \"Value\": \"00:02:30\"\n  }\n}```",
+			"query": "// 1 - Creating a new workload group\n\n.create-or-alter workload_group ['Engineering Department WG']  ```\n{\n  \"MaxResultRecords\": {\n    \"IsRelaxable\": false,\n    \"Value\": 1048576\n  },\n  \"MaxResultBytes\": {\n    \"IsRelaxable\": true,\n    \"Value\": 64000000\n  },\n  \"MaxExecutiontime\": {\n    \"IsRelaxable\": false,\n    \"Value\": \"00:02:30\"\n  }\n}```",
 			"metadata": {
 				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
 			}
 		},
 		"type": "KqlQuery"
