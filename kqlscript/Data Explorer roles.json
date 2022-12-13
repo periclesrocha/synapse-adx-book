@@ -2,7 +2,7 @@
 	"name": "Data Explorer roles",
 	"properties": {
 		"content": {
-			"query": "// 1 - Showing principals with access to the fleet data table\n\n.show table ['fleet data'] principals\n\n// 2 - Adding users to a role\n\n.add database ['drone-telemetry'] admins \n    ('aaduser=adenor@periclesrocha.com', \n     'aaduser=cecilia@periclesrocha.com',\n     'aaduser=plinio@periclesrocha.com') \n     'Adding new users'\n\n // 3 - Replacing all principals in a role to this one only\n\n.set database ['drone-telemetry'] admins ('aaduser=peri@periclesrocha.com') 'Replacing all roles'\n",
+			"query": "// 1 - Showing principals with access to the fleet data table\n\n.show table ['fleet data'] principals\n\n// 2 - Adding users to a role\n\n.add database ['drone-telemetry'] admins \n    ('aaduser=adenor@periclesrocha.com', \n     'aaduser=cecilia@periclesrocha.com',\n     'aaduser=plinio@periclesrocha.com') \n     'Adding new users'\n\n // 3 - Removing a specific user from a role\n\n.drop database ['drone-telemetry'] admins ('aaduser=adenor@periclesrocha.com')\n \n // 4 - Replacing all principals in a role to this one only\n\n.set database ['drone-telemetry'] admins ('aaduser=peri@periclesrocha.com') 'Replacing all roles'\n",
 			"metadata": {
 				"language": "kql"
 			},
