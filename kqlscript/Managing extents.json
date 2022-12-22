@@ -1,6 +1,9 @@
 {
 	"name": "Managing extents",
 	"properties": {
+		"folder": {
+			"name": "Chapter 13"
+		},
 		"content": {
 			"query": "",
 			"metadata": {
