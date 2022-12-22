@@ -1,0 +1,12 @@
+{
+	"name": "Managing extents",
+	"properties": {
+		"content": {
+			"query": "",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
