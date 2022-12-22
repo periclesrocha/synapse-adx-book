@@ -5,9 +5,13 @@
 			"name": "Chapter 13"
 		},
 		"content": {
-			"query": "",
+			"query": "// 1. Reviewing the database merge policy\n\n.show database ['drone-telemetry'] policy merge \n\n// 2. Altering tags on all extents of a table\n\n.alter extent tags ('Drone telemetry data. ') <| .show table ['fleet data'] extents\n\n// 3. Adding tags on all extents of a table\n\n.alter-merge extent tags ('Data source: telemetry data lake.') <| .show table ['fleet data'] extents\n\n\n// 3. Reviewing extent tags\n\n.show table ['fleet data'] extents\n| project Tags\n",
 			"metadata": {
 				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
 			}
 		},
 		"type": "KqlQuery"
