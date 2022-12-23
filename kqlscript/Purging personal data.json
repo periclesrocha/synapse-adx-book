@@ -1,10 +1,17 @@
 {
 	"name": "Purging personal data",
 	"properties": {
+		"folder": {
+			"name": "Chapter 13"
+		},
 		"content": {
-			"query": "",
+			"query": ".purge table ['fleet data with tags - archive'] records in database ['drone-telemetry'] with (noregrets='true') <| where CoreTemp < 3",
 			"metadata": {
 				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
 			}
 		},
 		"type": "KqlQuery"
