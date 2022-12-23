@@ -2,7 +2,7 @@
 	"name": "System Monitoring",
 	"properties": {
 		"folder": {
-			"name": "Chapter 9"
+			"name": "Chapter 10"
 		},
 		"content": {
 			"query": "// 1 - Checking your Data Explorer pool capacity \n\n.show capacity \n\n// 2 - Changing policy capacity limits\n\n.alter cluster policy capacity ```\n{\n  \"IngestionCapacity\": {\n    \"ClusterMaximumConcurrentOperations\": 512\n  }\n}```\n\n// 3 - Monitoring query execution \n\n.show commands-and-queries\n| where State == 'Failed'\n| order by StartedOn desc \n\n// 3 - Stopping user queries\n\n.cancel query 'Studio;7330d14b-f5de-46cb-acd9-6f30ffebf844' with (reason='Canceled by admin')\n\n// 4 - Queries with the most TotalCPU time in the last 24 hours\n\n.show commands-and-queries \n| where StartedOn > ago(24h)\n| order by TotalCpu desc\n| project User, Application, TotalCpu, State, Text\n\n// 5 - Showing table metadata\n\n.show table ['fleet data'] details\n| project DatabaseName, TableName, TotalOriginalSize, TotalRowCount, AuthorizedPrincipals\n\n// 6 - Reviewing object metadata and changes\n\n.show journal \n| where EntityName == 'fleet data'\n| order by EventTimestamp desc\n| project EventTimestamp, Event, OriginalEntityState, ChangeCommand, User",
