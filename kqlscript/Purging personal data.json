@@ -5,7 +5,7 @@
 			"name": "Chapter 13"
 		},
 		"content": {
-			"query": ".purge table ['fleet data with tags - archive'] records in database ['drone-telemetry'] with (noregrets='true') <| where CoreTemp < 3",
+			"query": "//1. Purging data from a table\n\n\n\n//2. Single-step purge \n\n.purge table ['fleet data with tags - archive'] records in database ['drone-telemetry'] with (noregrets='true') <| where CoreTemp < 3",
 			"metadata": {
 				"language": "kql"
 			},
