@@ -1,0 +1,12 @@
+{
+	"name": "Purging personal data",
+	"properties": {
+		"content": {
+			"query": "",
+			"metadata": {
+				"language": "kql"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
