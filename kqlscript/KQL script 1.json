@@ -1,0 +1,16 @@
+{
+	"name": "KQL script 1",
+	"properties": {
+		"content": {
+			"query": ".show tables ",
+			"metadata": {
+				"language": "kql"
+			},
+			"currentConnection": {
+				"poolName": "droneanalyticsadx",
+				"databaseName": "drone-telemetry"
+			}
+		},
+		"type": "KqlQuery"
+	}
+}
