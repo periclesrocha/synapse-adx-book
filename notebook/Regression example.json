@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "fe9a202d-cf1f-4329-8212-34fc18f7c261"
+				"spark.autotune.trackingId": "e577e956-ff83-45f3-83a4-0e8a7fe8408f"
 			}
 		},
 		"metadata": {
@@ -45,7 +45,8 @@
 				"sparkVersion": "2.4",
 				"nodeCount": 3,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -60,7 +61,7 @@
 					}
 				},
 				"source": [
-					"# Chapter 7: Building Machine Learning experiments\r\n",
+					"# Chapter 8: Building Machine Learning experiments\r\n",
 					"\r\n",
 					"## Finding the best model with AutoML\r\n",
 					"\r\n",
@@ -82,7 +83,7 @@
 					"from notebookutils import mssparkutils\n",
 					"from azureml.data.dataset_factory import TabularDatasetFactory"
 				],
-				"execution_count": 2
+				"execution_count": 1
 			},
 			{
 				"cell_type": "markdown",
@@ -106,7 +107,7 @@
 					"ws = mssparkutils.azureML.getWorkspace(linkedService_name)\n",
 					"experiment = Experiment(ws, experiment_name)"
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -169,7 +170,7 @@
 					"dataset = TabularDatasetFactory.register_spark_dataframe(training_data, \n",
 					"      datastore, name = experiment_name + \"-dataset\")"
 				],
-				"execution_count": 7
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -201,7 +202,7 @@
 				"source": [
 					"display(df, summary=True)"
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -237,7 +238,7 @@
 					"                             max_concurrent_iterations = 2,\n",
 					"                             enable_onnx_compatible_models = False, **automl_settings)"
 				],
-				"execution_count": 9
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -259,7 +260,7 @@
 				"source": [
 					"run = experiment.submit(automl_config, show_output=True)"
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -296,7 +297,7 @@
 					"    # Register the model to AML model registry\n",
 					"    mlflow.register_model(\"runs:/\" + run.info.run_id + \"/\" + artifact_path, \"drone-analytics-fleet_data-20221026113234-Best\")"
 				],
-				"execution_count": 11
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -342,7 +343,7 @@
 					"df_compare['Predicted'] = y_predict\r\n",
 					"display(df_compare)"
 				],
-				"execution_count": 12
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -391,7 +392,7 @@
 					"plt.title(\"Actual vs Predicted CoreTemp R^2={}\".format(r2))\r\n",
 					"plt.show()"
 				],
-				"execution_count": 15
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -427,7 +428,7 @@
 					"model = best_run.register_model(model_name = 'DeviceTelemetry', model_path = model_path, description = description)\r\n",
 					"print(model.name, model.version)"
 				],
-				"execution_count": 16
+				"execution_count": null
 			}
 		]
 	}
