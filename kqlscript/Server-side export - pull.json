@@ -5,7 +5,7 @@
 			"name": "Chapter 9"
 		},
 		"content": {
-			"query": "// 1: \n.set-or-append ['fleet data - failures'] <|\n   ['fleet data']\n   | where  DeviceState == 'DeviceError'\n\n",
+			"query": "// 1: \n\n.set-or-append ['fleet data - failures'] <|\n   ['fleet data']\n   | where  DeviceState == 'DeviceError'\n\n",
 			"metadata": {
 				"language": "kql"
 			},
