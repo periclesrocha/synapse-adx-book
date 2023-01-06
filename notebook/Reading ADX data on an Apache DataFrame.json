@@ -2,7 +2,7 @@
 	"name": "Reading ADX data on an Apache DataFrame",
 	"properties": {
 		"folder": {
-			"name": "Tests"
+			"name": "Chapter 3"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "39cd1cf7-b35e-493a-8f66-860534322a96"
+				"spark.autotune.trackingId": "9c5b808f-2d66-4476-bba6-a5b7cf7216bc"
 			}
 		},
 		"metadata": {
@@ -45,7 +45,8 @@
 				"sparkVersion": "3.2",
 				"nodeCount": 3,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
