@@ -5,7 +5,7 @@
 			"name": "Chapter 5"
 		},
 		"content": {
-			"query": ".ingest into table ['fleet data simplified'] \n    'https://dronetelemetrydatalake.blob.core.windows.net/raw-data/drone-telemetry-simplified.csv?sp=r&st=2022-09-14T05:25:46Z&se=2022-09-14T13:25:46Z&spr=https&sv=2021-06-08&sr=b&sig=0CC1u1wSdu9IL4Am%2F6QUF7kcUY90fExt4MIooKZJnVs%3D' \n    with (ignoreFirstRecord=true)",
+			"query": ".ingest into table ['fleet data simplified'] \n    'https://dronetelemetrydatalake.blob.core.windows.net/raw-data/drone-telemetry-simplified.csv?sp=r&st=2023-01-06T17:09:48Z&se=2023-01-07T01:09:48Z&spr=https&sv=2021-06-08&sr=b&sig=wBxwqY%2F%2BCnisHMbfv0sWj96bMOmjV1hCylzfpraouNs%3D' \n    with (ignoreFirstRecord=true)",
 			"metadata": {
 				"language": "kql"
 			},
