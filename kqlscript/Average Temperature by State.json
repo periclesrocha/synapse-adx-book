@@ -2,10 +2,10 @@
 	"name": "Average Temperature by State",
 	"properties": {
 		"folder": {
-			"name": "Experiments"
+			"name": "Chapter 3"
 		},
 		"content": {
-			"query": "['fleet data']\n| summarize ['Average Temperature'] = avg(CoreTemp) by DeviceState\n| order by ['Average Temperature'] desc ",
+			"query": "['fleet data']\n| summarize ['Average Temperature'] = avg(CoreTemp) by DeviceState\n| order by ['Average Temperature'] desc \n| render columnchart ",
 			"metadata": {
 				"language": "kql"
 			},
